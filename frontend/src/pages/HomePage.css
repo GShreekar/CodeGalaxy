@@ -1,0 +1,102 @@
+/* src/pages/HomePage.css */
+.home-page {
+    min-height: 100vh;
+    background-color: var(--dark-bg);
+  }
+  
+  .hero-section {
+    padding: 100px 0;
+    text-align: center;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.8),
+      var(--dark-bg)
+    );
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, 
+      rgba(0, 255, 255, 0.1) 0%,
+      transparent 70%);
+    pointer-events: none;
+  }
+  
+  .main-title {
+    font-size: 4rem;
+    color: var(--neon-primary);
+    text-shadow: 0 0 10px var(--neon-primary),
+                 0 0 20px var(--neon-primary),
+                 0 0 40px var(--neon-primary);
+    margin-bottom: 1.5rem;
+    animation: glow 1.5s ease-in-out infinite alternate;
+  }
+  
+  .hero-description {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+  }
+  
+  .search-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .trending-section {
+    padding: 80px 0;
+    background-color: var(--dark-bg);
+  }
+  
+  .section-title {
+    color: var(--neon-secondary);
+    text-align: center;
+    margin-bottom: 3rem;
+    font-size: 2.5rem;
+    text-shadow: 0 0 10px var(--neon-secondary);
+  }
+  
+  @keyframes glow {
+    from {
+      text-shadow: 0 0 10px var(--neon-primary),
+                   0 0 20px var(--neon-primary);
+    }
+    to {
+      text-shadow: 0 0 15px var(--neon-primary),
+                   0 0 30px var(--neon-primary),
+                   0 0 45px var(--neon-primary);
+    }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .hero-section {
+      padding: 60px 0;
+    }
+  
+    .main-title {
+      font-size: 3rem;
+    }
+  
+    .hero-description {
+      font-size: 1rem;
+      padding: 0 20px;
+    }
+  
+    .trending-section {
+      padding: 40px 0;
+    }
+  
+    .section-title {
+      font-size: 2rem;
+    }
+  }

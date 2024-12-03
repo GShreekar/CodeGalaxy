@@ -1,0 +1,16 @@
+/* src/App.css */
+:root {
+  --neon-primary: #0ff;
+  --neon-secondary: #f0f;
+  --dark-bg: #1a1a1a;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1 0 auto;
+}

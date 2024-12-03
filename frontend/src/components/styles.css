@@ -1,0 +1,74 @@
+/* src/components/styles.css */
+:root {
+    --neon-primary: #0ff;
+    --neon-secondary: #f0f;
+    --dark-bg: #1a1a1a;
+  }
+  
+  .neon-text {
+    color: var(--neon-primary);
+    text-shadow: 0 0 5px var(--neon-primary),
+                 0 0 10px var(--neon-primary),
+                 0 0 20px var(--neon-primary);
+  }
+  
+  .snippet-card {
+    background: var(--dark-bg);
+    border: 1px solid var(--neon-secondary);
+    border-radius: 8px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+  }
+
+  .snippet-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px var(--neon-primary);
+  }
+  
+  .code-block {
+    background: #2a2a2a;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+  
+  .search-input {
+    background: var(--dark-bg);
+    color: white;
+    border: 1px solid var(--neon-primary);
+  }
+  
+  .loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+  }
+
+  .nav-link.active {
+    color: var(--neon-primary) !important;
+    text-shadow: 0 0 10px var(--neon-primary);
+    position: relative;
+    display: inline-block;
+  }
+  
+  .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 2px;
+    background-color: var(--neon-primary);
+    box-shadow: 0 0 10px var(--neon-primary);
+  }
+  
+  @media (max-width: 991px) {
+    .nav-link.active::after {
+      width: 90%;
+      left: auto;
+      right: 0;
+      transform: none;
+    }
+  }

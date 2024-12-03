@@ -1,0 +1,52 @@
+/* src/pages/AuthPages.css */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--dark-bg);
+    padding: 20px;
+  }
+  
+  .auth-card {
+    background: rgba(26, 26, 26, 0.9);
+    border: 1px solid var(--neon-primary);
+    box-shadow: 0 0 15px var(--neon-primary);
+    max-width: 400px;
+    width: 100%;
+  }
+  
+  .form-control {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--neon-primary);
+    color: white;
+  }
+  
+  .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--neon-secondary);
+    box-shadow: 0 0 8px var(--neon-secondary);
+    color: white;
+  }
+  
+  .neon-link {
+    color: var(--neon-primary);
+    text-decoration: none;
+  }
+  
+  .neon-link:hover {
+    text-shadow: 0 0 8px var(--neon-primary);
+  }
+  
+  .btn-primary {
+    background: transparent;
+    border: 1px solid var(--neon-primary);
+    color: var(--neon-primary);
+  }
+  
+  .btn-primary:hover {
+    background: var(--neon-primary);
+    border-color: var(--neon-primary);
+    color: var(--dark-bg);
+    box-shadow: 0 0 15px var(--neon-primary);
+  }
