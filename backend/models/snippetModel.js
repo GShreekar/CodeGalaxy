@@ -34,7 +34,7 @@ const snippetSchema = new mongoose.Schema({
   language: {
     type: String,
     required: true,
-    enum: ['JavaScript', 'Python', 'Java', 'C++', 'Ruby', 'PHP', 'Other'] // Add more as needed
+    enum: ['JavaScript', 'Python', 'Java', 'C++', 'Ruby', 'PHP', 'Go', 'Swift', 'Rust', 'TypeScript', 'Kotlin', 'SQL'] // Add more as needed
   },
   code: {
     type: String,

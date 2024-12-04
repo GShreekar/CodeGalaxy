@@ -43,7 +43,7 @@ const SnippetCard = ({ snippet }) => {
 
         <div className="code-container">
           <SyntaxHighlighter 
-            language={snippet.language.toLowerCase()}
+            language={'C++' ? 'cpp' : snippet.language.toLowerCase()}
             style={vscDarkPlus}
             customStyle={{
               background: 'rgba(0, 0, 0, 0.3)',
