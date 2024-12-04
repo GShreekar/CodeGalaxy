@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { upvoteSnippet, downvoteSnippet } from '../features/snippetSlice';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { FaArrowUp, FaArrowDown, FaComment, FaCopy, FaCheck } from 'react-icons/fa';
 
 const SnippetCard = ({ snippet }) => {
   const [copied, setCopied] = useState(false);
@@ -38,13 +39,19 @@ const SnippetCard = ({ snippet }) => {
     <div className="card snippet-card my-3">
       <div className="card-body">
         <h5 className="card-title neon-text">{snippet.title}</h5>
-        <h6 className="card-subtitle mb-2 text-muted">by {snippet.author}</h6>
+        <h6 className="card-subtitle mb-2 text-muted">
+          by {snippet.author}
+          {snippet.author !== "CodeGalaxy" && (
+            <span className="ms-2 text-muted">
+              {new Date(snippet.createdAt).toLocaleDateString()}
+            </span>
+          )}
+        </h6>
         <p className="card-text">{snippet.description}</p>
-        
 
         <div className="code-block">
           <SyntaxHighlighter 
-            language={'C++' ? 'cpp' : snippet.language.toLowerCase()}
+            language={snippet.language === 'C++' ? 'cpp' : snippet.language.toLowerCase()}
             style={vscDarkPlus}
             customStyle={{
               background: 'rgba(0, 0, 0, 0.3)',
@@ -55,32 +62,42 @@ const SnippetCard = ({ snippet }) => {
           </SyntaxHighlighter>
         </div>
 
-        <div className="button-group">
-          <button 
-            className="btn btn-outline-primary me-2 mb-3" 
-            onClick={copyCode}
-          >
-            {copied ? 'Copied!' : 'Copy Code'}
-          </button>
+        <div className="card-actions mt-3">
+          <div className="vote-actions">
+            <button 
+              className={`btn btn-vote ${snippet.upvoters?.includes(user?._id) ? 'voted' : ''}`}
+              onClick={handleUpvote}
+              title="Upvote"
+            >
+              <FaArrowUp />
+              <span>{snippet.upvoters?.length || 0}</span>
+            </button>
+            <button 
+              className={`btn btn-vote ${snippet.downvoters?.includes(user?._id) ? 'voted' : ''}`}
+              onClick={handleDownvote}
+              title="Downvote"
+            >
+              <FaArrowDown />
+              <span>{snippet.downvoters?.length || 0}</span>
+            </button>
+          </div>
+
           <Link 
-            to={`/snippet/${snippet._id}/comments`} 
-            className="btn btn-outline-info me-2 mb-3"
+            to={`/snippet/${snippet._id}/comments`}
+            className="btn btn-comment"
+            title="View comments"
           >
-            Comments
+            <FaComment />
+            <span>Comments ({snippet.comments?.length || 0})</span>
           </Link>
-        </div>
-        <div className="button-group">
+
           <button 
-            className={`btn ${snippet.upvoters?.includes(user?._id) ? 'btn-success' : 'btn-outline-success'} me-2 mb-3`}
-            onClick={handleUpvote}
+            className="btn btn-copy"
+            onClick={copyCode}
+            title={copied ? 'Copied!' : 'Copy code'}
           >
-            Upvotes: {snippet.upvotes}
-          </button>
-          <button 
-            className={`btn ${snippet.downvoters?.includes(user?._id) ? 'btn-danger' : 'btn-outline-danger'} me-2 mb-3`}
-            onClick={handleDownvote}
-          >
-            Downvotes: {snippet.downvotes}
+            {copied ? <FaCheck /> : <FaCopy />}
+            <span>{copied ? 'Copied!' : 'Copy Code'}</span>
           </button>
         </div>
       </div>

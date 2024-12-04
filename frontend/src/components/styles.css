@@ -110,3 +110,69 @@
       transform: none;
     }
   }
+
+  /* styles.css */
+.snippet-card {
+  background: #1e1e1e;
+  border: 1px solid var(--neon-primary);
+  transition: all 0.3s ease;
+}
+
+.snippet-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 20px var(--neon-primary);
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.vote-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-vote {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--neon-primary);
+  background: transparent;
+  color: var(--neon-primary);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-vote.voted {
+  background: var(--neon-primary);
+  color: #000;
+}
+
+.btn-copy, 
+.btn-comment {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid #666;
+  background: transparent;
+  color: #fff;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-copy:hover,
+.btn-comment:hover {
+  border-color: var(--neon-primary);
+  color: var(--neon-primary);
+}
+
+.creator-actions {
+  border-top: 1px solid #333;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
