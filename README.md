@@ -68,18 +68,15 @@ CodeGalaxy is a web application for sharing and discovering code snippets across
    JWT_SECRET=your_jwt_secret_key
    ```
 
-4. **Start the Backend Server**
-
+4. **Default Snippets**
    ```bash
-   npm run dev
+   npm run seed
    ```
 
 5. **Frontend Setup**
 
-   Open a new terminal window:
-
    ```bash
-   cd CodeGalaxy/frontend
+   cd ../frontend
    npm install
    ```
 
@@ -94,6 +91,7 @@ CodeGalaxy is a web application for sharing and discovering code snippets across
 7. **Start the Frontend Server**
 
    ```bash
+   cd ..
    npm start
    ```
 
@@ -110,7 +108,7 @@ CodeGalaxy is a web application for sharing and discovering code snippets across
 - **Submit** the form to create the snippet.
 - Browse existing snippets via **Snippets**, **Categories**, or **Community Snippets**.
 - **Upvote**, **downvote**, and **comment** on snippets.
-- Visit **My Snippets** to view and manage your uploaded snippets.
+- Visit **My Snippets** to view your uploaded snippets.
 - **Log out** when you're done.
 
 ## API Endpoints
@@ -146,8 +144,7 @@ This project is licensed under the **MIT License**.
 
 ## Contact
 
-- **Developer 1**: [GitHub](https://github.com/dev1)
-- **Developer 2**: [GitHub](https://github.com/dev2)
+- **Developer 1**: [GitHub](https://github.com/GShreekar)
 
 ---
 
