@@ -30,6 +30,44 @@
     padding: 1rem;
     border-radius: 4px;
     overflow-x: auto;
+    max-height: 300px;
+    margin-bottom: 1rem;
+  }
+
+  .code-block::-webkit-scrollbar {
+    width: 8px;
+    height: 2px;
+  }
+
+  .code-block::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 4px;
+  }
+
+  .code-block::-webkit-scrollbar-thumb {
+    background: rgb(129, 144, 144);
+    border-radius: 4px;
+  }
+
+  .code-block::-webkit-scrollbar-thumb:hover {
+    background: rgb(129, 144, 144);
+    box-shadow: 0 0 10px rgb(129, 144, 144);
+  }
+
+  .code-block::-webkit-scrollbar-track:horizontal {
+    background: #1a1a1a;
+    border-radius: 4px;
+  }
+  
+  .code-block::-webkit-scrollbar-thumb:horizontal {
+    background: rgb(129, 144, 144);
+    border-radius: 4px;
+  }
+  
+  /* For Firefox */
+  .code-block {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(129, 144, 144) #1a1a1a;
   }
   
   .search-input {

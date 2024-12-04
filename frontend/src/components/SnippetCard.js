@@ -40,16 +40,15 @@ const SnippetCard = ({ snippet }) => {
         <h5 className="card-title neon-text">{snippet.title}</h5>
         <h6 className="card-subtitle mb-2 text-muted">by {snippet.author}</h6>
         <p className="card-text">{snippet.description}</p>
+        
 
-        <div className="code-container">
+        <div className="code-block">
           <SyntaxHighlighter 
             language={'C++' ? 'cpp' : snippet.language.toLowerCase()}
             style={vscDarkPlus}
             customStyle={{
               background: 'rgba(0, 0, 0, 0.3)',
-              padding: '1rem',
-              borderRadius: '4px',
-              margin: '1rem 0'
+              borderRadius: '4px'
             }}
           >
             {snippet.code}
