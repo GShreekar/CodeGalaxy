@@ -10,8 +10,7 @@ dotenv.config();
 
 const app = express();
 
-const cors = require('cors');
-app.use(cors({ origin: 'https://superb-granita-ff02e0.netlify.app' }));
+app.use(cors({ origin: 'https://fabulous-churros-d4f827.netlify.app' }));
 app.use(express.json());
 app.use('/api', apiLimiter);
 app.use(errorHandler);
