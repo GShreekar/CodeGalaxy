@@ -10,7 +10,8 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+const cors = require('cors');
+app.use(cors({ origin: 'https://superb-granita-ff02e0.netlify.app' }));
 app.use(express.json());
 app.use('/api', apiLimiter);
 app.use(errorHandler);
