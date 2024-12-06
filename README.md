@@ -144,7 +144,9 @@ This project is licensed under the **GNU GENERAL PUBLIC LICENSE**.
 
 ## Contact
 
-- **Developer 1**: [GitHub](https://github.com/GShreekar)
+- **G Shreekar**: [GitHub](https://github.com/GShreekar)
+- **Shreyas Bairy K S**: [GitHub](https://github.com/ShreyasBairyKS)
+- **H Sampreeth Bhat**: [GitHub](https://github.com/Sampreeth-bhat)
 
 ---
 
