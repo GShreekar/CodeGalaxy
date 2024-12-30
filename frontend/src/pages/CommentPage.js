@@ -38,7 +38,7 @@ const CommentPage = () => {
     <div className="comment-page">
       <div className="container py-4">
         {/* Snippet Card */}
-        <SnippetCard snippet={currentSnippet} />
+        <SnippetCard snippet={currentSnippet} disableClick={true} />
 
         {/* Comments Section */}
         <div className="comments-section">

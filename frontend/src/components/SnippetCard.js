@@ -8,7 +8,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { FaArrowUp, FaArrowDown, FaComment, FaCopy, FaCheck } from 'react-icons/fa';
 
-const SnippetCard = ({ snippet }) => {
+const SnippetCard = ({ snippet, disableClick }) => {
   const [copied, setCopied] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate(); // Fix navigate hook
@@ -36,6 +36,7 @@ const SnippetCard = ({ snippet }) => {
   };
 
   const handleCardClick = (e) => {
+    if (disableClick) return;
     // Don't navigate if clicking on buttons or links
     if (e.target.closest('.btn') || e.target.closest('a')) {
       return;
@@ -47,7 +48,7 @@ const SnippetCard = ({ snippet }) => {
     <div 
       className="card snippet-card my-3"
       onClick={handleCardClick}
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: disableClick ? 'default' : 'pointer' }}
     >
       <div className="card-body">
         <h5 className="card-title neon-text">{snippet.title}</h5>
