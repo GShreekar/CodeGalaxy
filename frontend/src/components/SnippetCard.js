@@ -35,8 +35,20 @@ const SnippetCard = ({ snippet }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleCardClick = (e) => {
+    // Don't navigate if clicking on buttons or links
+    if (e.target.closest('.btn') || e.target.closest('a')) {
+      return;
+    }
+    navigate(`/snippet/${snippet._id}/comments`);
+  };
+
   return (
-    <div className="card snippet-card my-3">
+    <div 
+      className="card snippet-card my-3"
+      onClick={handleCardClick}
+      style={{ cursor: 'pointer' }}
+    >
       <div className="card-body">
         <h5 className="card-title neon-text">{snippet.title}</h5>
         <h6 className="card-subtitle mb-2 text-muted">

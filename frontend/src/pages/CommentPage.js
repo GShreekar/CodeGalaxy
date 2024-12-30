@@ -1,22 +1,17 @@
 // src/pages/CommentPage.js
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  fetchSnippetById, 
-  addComment } from '../features/snippetSlice';
-import SnippetCard from '../components/SnippetCard';
+import { fetchSnippetById, addComment } from '../features/snippetSlice';
 import './CommentPage.css';
+import SnippetCard from '../components/SnippetCard';
 
 const CommentPage = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const [commentText, setCommentText] = useState('');
-  const [error, setError] = useState(null);
-  
   const { currentSnippet, loading } = useSelector(state => state.snippets);
   const { user } = useSelector(state => state.auth);
+  const [commentText, setCommentText] = useState('');
 
   useEffect(() => {
     dispatch(fetchSnippetById(id));
@@ -24,6 +19,8 @@ const CommentPage = () => {
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
+    if (!commentText.trim()) return;
+  
     try {
       await dispatch(addComment({ 
         snippetId: id,
@@ -31,7 +28,6 @@ const CommentPage = () => {
       })).unwrap();
       setCommentText('');
     } catch (error) {
-      setError('Failed to add comment. Please try again.');
       console.error('Failed to add comment:', error);
     }
   };
@@ -41,17 +37,14 @@ const CommentPage = () => {
   return (
     <div className="comment-page">
       <div className="container py-4">
+        {/* Snippet Card */}
         <SnippetCard snippet={currentSnippet} />
 
-        {error && (
-          <div className="alert alert-danger" role="alert">
-            {error}
-          </div>
-        )}
-
+        {/* Comments Section */}
         <div className="comments-section">
           <h4 className="comments-title neon-text mb-4">Comments</h4>
 
+          {/* Comment Form */}
           <form onSubmit={handleSubmitComment} className="comment-form mb-4">
             <div className="form-group">
               <textarea
@@ -68,17 +61,23 @@ const CommentPage = () => {
             </button>
           </form>
 
-          {currentSnippet.comments?.map(comment => (
-            <div key={comment._id} className="comment-item">
-              <div className="comment-header">
-                <span className="comment-author">{comment.author}</span>
-                <span className="comment-date">
-                  {new Date(comment.createdAt).toLocaleDateString()}
-                </span>
-              </div>
-              <p className="comment-text">{comment.text}</p>
-            </div>
-          ))}
+          {/* Comments List */}
+          <div className="comments-list">
+            {currentSnippet.comments?.length === 0 ? (
+              <p className="text-center">No comments yet. Be the first to comment!</p>
+            ) : (
+              currentSnippet.comments?.map((comment, index) => (
+                <div key={index} className="comment-card">
+                  <div className="comment-header">
+                    <span className="comment-author">{comment.username}</span>
+                  </div>
+                  <div className="comment-body">
+                    {comment.text}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>
