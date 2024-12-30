@@ -14,35 +14,41 @@ const LanguagePage = () => {
   const { snippets, loading, error } = useSelector(state => state.snippets);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const normalizeLanguageName = (lang) => {
+    const langMap = {
+      'javascript': 'JavaScript',
+      'typescript': 'TypeScript',
+      'sql': 'SQL',
+      'php': 'PHP'
+    };
+    return langMap[lang.toLowerCase()] || lang.charAt(0).toUpperCase() + lang.slice(1).toLowerCase();
+  };
+
   useEffect(() => {
-    // Convert language parameter to match the stored format
-    const formattedLanguage = language.charAt(0).toUpperCase() + language.slice(1).toLowerCase();
-    dispatch(fetchSnippets({ language: formattedLanguage }));
+    const normalizedLanguage = normalizeLanguageName(language);
+    dispatch(fetchSnippets({ language: normalizedLanguage }));
   }, [dispatch, language]);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    const formattedLanguage = language.charAt(0).toUpperCase() + language.slice(1).toLowerCase();
-    dispatch(fetchSnippets({ language: formattedLanguage, search: query }));
+    const normalizedLanguage = normalizeLanguageName(language);
+    dispatch(fetchSnippets({ language: normalizedLanguage, search: query }));
   };
 
-  const filteredSnippets = snippets.filter(snippet => 
-    snippet.language.toLowerCase() === language.toLowerCase()
-  );
-
   if (loading) return <Loader />;
+  if (snippets.length === 0) return <div className="text-center">No snippets found</div>;
 
   return (
     <div className="language-page">
       <div className="container py-4">
         <h1 className="language-title text-center mb-4">
-          {language.charAt(0).toUpperCase() + language.slice(1)} Snippets
+          {normalizeLanguageName(language)} Snippets
         </h1>
 
         <div className="search-container mb-4">
           <SearchBar 
             onSearch={handleSearch}
-            placeholder={`Search ${language} snippets...`}
+            placeholder={`Search ${normalizeLanguageName(language)} snippets...`}
           />
         </div>
 
@@ -52,21 +58,13 @@ const LanguagePage = () => {
           </div>
         )}
 
-        {filteredSnippets.length === 0 ? (
-          <div className="no-snippets">
-            <h3 className="text-center neon-text">
-              No {language} snippets found
-            </h3>
-          </div>
-        ) : (
-          <div className="row g-4">
-            {filteredSnippets.map(snippet => (
-              <div key={snippet._id} className="col-12 col-md-6 col-lg-4">
-                <SnippetCard snippet={snippet} />
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="row g-4">
+          {snippets.map(snippet => (
+            <div key={snippet._id} className="col-12 col-md-6 col-lg-4">
+              <SnippetCard snippet={snippet} />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
