@@ -1,6 +1,7 @@
 // src/features/snippetSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import api from '../utils/axiosConfig';
 
 // Fetch single snippet thunk
 export const fetchSnippetById = createAsyncThunk(
@@ -65,18 +66,14 @@ export const fetchSnippets = createAsyncThunk(
 );
 
 export const upvoteSnippet = createAsyncThunk(
-  'snippets/upvote',
-  async (snippetId) => {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/snippet/${snippetId}/upvote`,
-      {},
-      {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      }
-    );
-    return response.data;
+  'snippets/upvoteSnippet',
+  async (snippetId, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/snippet/${snippetId}/upvote`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
   }
 );
 
