@@ -97,6 +97,24 @@
   }
 }
 
+.login-prompt {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid var(--neon-primary);
+}
+
+.neon-link {
+  color: var(--neon-primary);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.neon-link:hover {
+  text-shadow: 0 0 8px var(--neon-primary);
+  color: var(--neon-primary);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .snippet-card,
