@@ -1,6 +1,6 @@
 // src/pages/RegisterPage.js
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../features/authSlice';
 import './AuthPage.css';
@@ -17,30 +17,25 @@ const RegisterPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const validateForm = () => {
-    const newErrors = {};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    let newErrors = {};
     if (!formData.name) newErrors.name = 'Name is required';
     if (!formData.username) newErrors.username = 'Username is required';
     if (!formData.email) newErrors.email = 'Email is required';
     if (!formData.password) newErrors.password = 'Password is required';
+    if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    return newErrors;
-  };
+    if (Object.keys(newErrors).length > 0) return setErrors(newErrors);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formErrors = validateForm();
-    if (Object.keys(formErrors).length === 0) {
-      try {
-        await dispatch(register(formData)).unwrap();
-        navigate('/');
-      } catch (error) {
-        setErrors({ submit: error.message });
-      }
-    } else {
-      setErrors(formErrors);
+    try {
+      const { confirmPassword, ...registerData } = formData;
+      await dispatch(register(registerData)).unwrap();
+      navigate('/');
+    } catch (error) {
+      setErrors({ submit: error });
     }
   };
 

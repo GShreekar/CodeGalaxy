@@ -40,14 +40,16 @@ export const login = createAsyncThunk(
 
 export const register = createAsyncThunk(
   'auth/register',
-  async (userData) => {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/register`,
-      userData
-    );
-    const { token, ...user } = response.data;
-    localStorage.setItem('token', token);
-    return user;
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/register`,
+        userData
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Registration failed');
+    }
   }
 );
 
@@ -116,11 +118,17 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
+        state.error = null;
         state.user = action.payload;
+        state.token = action.payload.token;
+        localStorage.setItem('user', JSON.stringify(action.payload));
+        localStorage.setItem('token', action.payload.token);
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
+        state.user = null;
+        state.token = null;
       });
   }
 });
