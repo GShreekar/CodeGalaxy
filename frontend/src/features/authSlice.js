@@ -1,24 +1,40 @@
 // src/features/authSlice.js
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const initialState = {
-  user: JSON.parse(localStorage.getItem('user')),
-  token: localStorage.getItem('token'),
-  loading: false,
-  error: null
+// Load initial state from localStorage
+const loadInitialState = () => {
+  const user = localStorage.getItem('user');
+  const token = localStorage.getItem('token');
+  return {
+    user: user ? JSON.parse(user) : null,
+    token: token || null,
+    loading: false,
+    error: null
+  };
 };
 
 export const login = createAsyncThunk(
   'auth/login',
-  async (credentials) => {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/login`,
-      credentials
-    );
-    const { token, ...user } = response.data;
-    localStorage.setItem('token', token);
-    return user;
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/login`,
+        credentials
+      );
+      
+      // Store token separately
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+      }
+      
+      return response.data;
+    } catch (error) {
+      const message = 
+        error.response?.data?.message || 
+        'Unable to login. Please try again.';
+      return rejectWithValue(message);
+    }
   }
 );
 
@@ -61,13 +77,14 @@ export const loadUser = createAsyncThunk(
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState,
+  initialState: loadInitialState(),
   reducers: {
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.loading = false;
       state.error = null;
+      localStorage.removeItem('user');
       localStorage.removeItem('token');
     },
     clearError: (state) => {
@@ -82,12 +99,16 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
+        state.error = null;
         state.user = action.payload;
+        state.token = action.payload.token;
         localStorage.setItem('user', JSON.stringify(action.payload));
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
+        state.user = null;
+        state.token = null;
       })
       .addCase(register.pending, (state) => {
         state.loading = true;
