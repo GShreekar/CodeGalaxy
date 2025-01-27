@@ -35,7 +35,7 @@ const RegisterPage = () => {
     if (Object.keys(formErrors).length === 0) {
       try {
         await dispatch(register(formData)).unwrap();
-        navigate('/login');
+        navigate('/');
       } catch (error) {
         setErrors({ submit: error.message });
       }
