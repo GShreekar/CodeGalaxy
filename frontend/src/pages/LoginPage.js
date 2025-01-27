@@ -14,25 +14,20 @@ const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.username) newErrors.username = 'Username is required';
-    if (!formData.password) newErrors.password = 'Password is required';
-    return newErrors;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formErrors = validateForm();
-    if (Object.keys(formErrors).length === 0) {
-      try {
-        await dispatch(login(formData)).unwrap();
-        navigate('/');
-      } catch (error) {
-        setErrors({ submit: error.message });
-      }
-    } else {
-      setErrors(formErrors);
+    let newErrors = {};
+    if (!formData.username) newErrors.username = 'Username is required';
+    if (!formData.password) newErrors.password = 'Password is required';
+    if (Object.keys(newErrors).length > 0) return setErrors(newErrors);
+    try {
+      await dispatch(login(formData)).unwrap();
+      navigate('/');
+    } catch (error) {
+      setErrors((PrevErrors) => ({
+        ...PrevErrors,
+        submit: error.message || 'An error occurred. Please try again.',
+      }));
     }
   };
 
