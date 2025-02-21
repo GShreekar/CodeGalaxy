@@ -64,7 +64,7 @@ CodeGalaxy is a web application for sharing and discovering code snippets across
 
    ```env
    PORT=5000
-   MONGO_URI=your_mongodb_connection_string
+   MONGODB_URI=your_mongodb_connection_string
    JWT_SECRET=your_jwt_secret_key
    ```
 
@@ -88,45 +88,16 @@ CodeGalaxy is a web application for sharing and discovering code snippets across
    REACT_APP_API_URL=http://localhost:5000/api
    ```
 
-7. **Start the Frontend Server**
+7. **Start the Frontend and Backend**
 
    ```bash
    cd ..
-   npm start
+   npm run dev
    ```
 
 8. **Access the Application**
 
    Open your browser and navigate to `http://localhost:3000`
-
-## Usage
-
-- **Register** a new account or **log in** if you already have one.
-- Navigate to **Create Snippet** to add a new code snippet.
-- Fill in the snippet details, including title, description, language, and code.
-- Use the **live preview** to see your code with syntax highlighting.
-- **Submit** the form to create the snippet.
-- Browse existing snippets via **Snippets**, **Categories**, or **Community Snippets**.
-- **Upvote**, **downvote**, and **comment** on snippets.
-- Visit **My Snippets** to view your uploaded snippets.
-- **Log out** when you're done.
-
-## API Endpoints
-
-- **Authentication**
-  - `POST /api/register`: Register a new user.
-  - `POST /api/login`: Log in a user.
-  - `GET /api/user`: Get the current logged-in user's info.
-
-- **Snippets**
-  - `GET /api/snippet`: Get all snippets (with optional filters).
-  - `POST /api/snippet`: Create a new snippet.
-  - `GET /api/snippet/:id`: Get a snippet by ID.
-  - `POST /api/snippet/:id/comment`: Add a comment to a snippet.
-  - `POST /api/snippet/:id/upvote`: Upvote a snippet.
-  - `POST /api/snippet/:id/downvote`: Downvote a snippet.
-  - `GET /api/snippet/user/:username`: Get all snippets by a user.
-  - `GET /api/snippet/stats/languages`: Get snippet counts per language.
 
 ## Contributing
 
