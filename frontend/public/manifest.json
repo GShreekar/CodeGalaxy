@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "CodeGalaxy",
+  "name": "CodeGalaxy - Code Snippet Sharing Platform",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,10 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#1a1a2e",
+  "background_color": "#0f0f1a",
+  "description": "Share and discover code snippets with the CodeGalaxy community",
+  "orientation": "any",
+  "categories": ["development", "programming", "productivity"],
+  "lang": "en-US"
 }
