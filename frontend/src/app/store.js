@@ -1,4 +1,3 @@
-// src/app/store.js
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../features/authSlice';
 import snippetReducer from '../features/snippetSlice';
@@ -13,7 +12,6 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        // Ignore these action types
         ignoredActions: ['persist/PERSIST'],
       },
     }),

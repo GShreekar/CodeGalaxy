@@ -1,4 +1,3 @@
-// src/pages/CommentPage.js
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -37,14 +36,11 @@ const CommentPage = () => {
   return (
     <div className="comment-page">
       <div className="container py-4">
-        {/* Snippet Card */}
         <SnippetCard snippet={currentSnippet} disableClick={true} />
 
-        {/* Comments Section */}
         <div className="comments-section">
           <h4 className="comments-title neon-text mb-4">Comments</h4>
 
-          {/* Comment Form */}
           <form onSubmit={handleSubmitComment} className="comment-form mb-4">
             <div className="form-group">
               <textarea
@@ -61,7 +57,6 @@ const CommentPage = () => {
             </button>
           </form>
 
-          {/* Comments List */}
           <div className="comments-list">
             {currentSnippet.comments?.length === 0 ? (
               <p className="text-center">No comments yet. Be the first to comment!</p>

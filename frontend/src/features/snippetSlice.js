@@ -1,30 +1,21 @@
-// src/features/snippetSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import api from '../utils/axiosConfig';
 
-// Fetch single snippet thunk
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 export const fetchSnippetById = createAsyncThunk(
   'snippets/fetchSnippetById',
   async (id) => {
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/snippet/${id}`);
+    const response = await axios.get(`${API_URL}/snippet/${id}`);
     return response.data;
   }
 );
 
-// Add comment thunk
 export const addComment = createAsyncThunk(
   'snippets/addComment',
-  async ({ snippetId, text }, { getState }) => {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/snippet/${snippetId}/comment`,
-      { text },
-      {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      }
-    );
+  async ({ snippetId, text }) => {
+    const response = await api.post(`/snippet/${snippetId}/comment`, { text });
     return response.data;
   }
 );
@@ -32,15 +23,7 @@ export const addComment = createAsyncThunk(
 export const createSnippet = createAsyncThunk(
   'snippets/createSnippet',
   async (snippetData) => {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/snippet`,
-      snippetData,
-      {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      }
-    );
+    const response = await api.post('/snippet', snippetData);
     return response.data;
   }
 );
@@ -53,14 +36,7 @@ export const fetchSnippets = createAsyncThunk(
     if (language) params.append('language', language);
     if (sort) params.append('sort', sort);
 
-    const response = await axios.get(
-      `${process.env.REACT_APP_API_URL}/snippet?${params}`,
-      {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      }
-    );
+    const response = await axios.get(`${API_URL}/snippet?${params}`);
     return response.data;
   }
 );
@@ -78,17 +54,9 @@ export const upvoteSnippet = createAsyncThunk(
 );
 
 export const downvoteSnippet = createAsyncThunk(
-  'snippets/downvote',
+  'snippets/downvoteSnippet',
   async (snippetId) => {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/snippet/${snippetId}/downvote`,
-      {},
-      {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      }
-    );
+    const response = await api.post(`/snippet/${snippetId}/downvote`);
     return response.data;
   }
 );
@@ -96,9 +64,7 @@ export const downvoteSnippet = createAsyncThunk(
 export const fetchAllUserSnippets = createAsyncThunk(
   'snippets/fetchAllUserSnippets',
   async () => {
-    const response = await axios.get(
-      `${process.env.REACT_APP_API_URL}/snippet/users/all`
-    );
+    const response = await axios.get(`${API_URL}/snippet/users/all`);
     return response.data;
   }
 );
@@ -106,9 +72,7 @@ export const fetchAllUserSnippets = createAsyncThunk(
 export const getLanguageStats = createAsyncThunk(
   'snippets/getLanguageStats',
   async () => {
-    const response = await axios.get(
-      `${process.env.REACT_APP_API_URL}/snippet/stats/languages`
-    );
+    const response = await axios.get(`${API_URL}/snippet/stats/languages`);
     return response.data;
   }
 );
@@ -118,13 +82,20 @@ const snippetSlice = createSlice({
   initialState: {
     snippets: [],
     currentSnippet: null,
+    languageStats: [],
     loading: false,
     error: null
   },
-  reducers: {},
+  reducers: {
+    clearError: (state) => {
+      state.error = null;
+    },
+    clearCurrentSnippet: (state) => {
+      state.currentSnippet = null;
+    }
+  },
   extraReducers: (builder) => {
     builder
-      // Fetch snippet by ID
       .addCase(fetchSnippetById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -137,7 +108,6 @@ const snippetSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      // Add comment
       .addCase(addComment.fulfilled, (state, action) => {
         const index = state.snippets.findIndex(s => s._id === action.payload._id);
         if (index !== -1) {
@@ -207,4 +177,5 @@ const snippetSlice = createSlice({
   }
 });
 
+export const { clearError, clearCurrentSnippet } = snippetSlice.actions;
 export default snippetSlice.reducer;

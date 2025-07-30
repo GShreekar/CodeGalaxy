@@ -1,6 +1,5 @@
-// src/components/SnippetCard.js
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Fix navigate import
+import { Link, useNavigate } from 'react-router-dom';
 import './styles.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { upvoteSnippet, downvoteSnippet } from '../features/snippetSlice';
@@ -11,7 +10,7 @@ import { FaArrowUp, FaArrowDown, FaComment, FaCopy, FaCheck } from 'react-icons/
 const SnippetCard = ({ snippet }) => {
   const [copied, setCopied] = useState(false);
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Fix navigate hook
+  const navigate = useNavigate();
   const { user } = useSelector(state => state.auth);
 
   const handleUpvote = () => {

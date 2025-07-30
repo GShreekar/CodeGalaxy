@@ -1,4 +1,3 @@
-// src/pages/HomePage.js
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchBar from '../components/SearchBar';

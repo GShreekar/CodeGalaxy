@@ -1,4 +1,3 @@
-// src/pages/ProfilePage.js
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../features/authSlice';

@@ -1,4 +1,3 @@
-// src/pages/LoginPage.js
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
@@ -16,7 +15,6 @@ const LoginPage = () => {
   const { error, loading } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    // Clear errors when component unmounts
     return () => dispatch(clearError());
   }, [dispatch]);
 
@@ -26,7 +24,6 @@ const LoginPage = () => {
       ...prev,
       [name]: value
     }));
-    // Clear errors when user types
     setErrors(prev => ({ ...prev, [name]: '', submit: '' }));
     dispatch(clearError());
   };

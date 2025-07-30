@@ -1,68 +1,66 @@
-/* src/pages/ContactPage.css */
 .contact-page {
-    min-height: 100vh;
-    background-color: var(--dark-bg);
-    display: flex;
-    align-items: center;
+  min-height: 100vh;
+  background-color: var(--dark-bg);
+  display: flex;
+  align-items: center;
+}
+
+.contact-card {
+  background: rgba(26, 26, 26, 0.9);
+  border: 1px solid var(--neon-primary);
+  border-radius: 10px;
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 0 20px var(--neon-primary);
+  animation: fadeIn 0.5s ease-in;
+}
+
+.form-control {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--neon-primary);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--neon-secondary);
+  box-shadow: 0 0 10px var(--neon-secondary);
+  color: white;
+}
+
+.form-control::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-primary {
+  background: transparent;
+  border: 1px solid var(--neon-primary);
+  color: var(--neon-primary);
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: var(--neon-primary);
+  color: var(--dark-bg);
+  box-shadow: 0 0 15px var(--neon-primary);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
   .contact-card {
-    background: rgba(26, 26, 26, 0.9);
-    border: 1px solid var(--neon-primary);
-    border-radius: 10px;
-    padding: 2rem;
-    max-width: 600px;
-    margin: 0 auto;
-    box-shadow: 0 0 20px var(--neon-primary);
-    animation: fadeIn 0.5s ease-in;
+    margin: 20px;
   }
-  
-  .form-control {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid var(--neon-primary);
-    color: white;
-    transition: all 0.3s ease;
-  }
-  
-  .form-control:focus {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-color: var(--neon-secondary);
-    box-shadow: 0 0 10px var(--neon-secondary);
-    color: white;
-  }
-  
-  .form-control::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-  }
-  
-  .btn-primary {
-    background: transparent;
-    border: 1px solid var(--neon-primary);
-    color: var(--neon-primary);
-    padding: 10px 20px;
-    transition: all 0.3s ease;
-  }
-  
-  .btn-primary:hover {
-    background: var(--neon-primary);
-    color: var(--dark-bg);
-    box-shadow: 0 0 15px var(--neon-primary);
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .contact-card {
-      margin: 20px;
-    }
-  }
+}

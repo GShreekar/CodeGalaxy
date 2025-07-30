@@ -1,4 +1,3 @@
-// src/pages/SnippetsPage.js
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import SearchBar from '../components/SearchBar';

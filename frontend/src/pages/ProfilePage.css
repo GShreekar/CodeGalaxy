@@ -1,118 +1,116 @@
-/* src/pages/ProfilePage.css */
 .profile-page {
-    min-height: 100vh;
-    background-color: var(--dark-bg);
-    display: flex;
-    align-items: center;
+  min-height: 100vh;
+  background-color: var(--dark-bg);
+  display: flex;
+  align-items: center;
+}
+
+.profile-card {
+  background: rgba(26, 26, 26, 0.9);
+  border: 1px solid var(--neon-primary);
+  border-radius: 10px;
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 0 20px var(--neon-primary);
+  animation: fadeIn 0.5s ease-in;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--neon-primary);
+}
+
+.profile-content {
+  padding: 1rem 0;
+}
+
+.info-item {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(0, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.info-item:hover {
+  background: rgba(0, 255, 255, 0.1);
+  transform: translateX(10px);
+}
+
+.info-label {
+  display: block;
+  color: var(--neon-primary);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.info-value {
+  display: block;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.snippets-btn,
+.logout-btn {
+  flex: 1;
+  padding: 10px;
+  transition: all 0.3s ease;
+}
+
+.snippets-btn {
+  background: transparent;
+  border: 1px solid var(--neon-primary);
+  color: var(--neon-primary);
+}
+
+.snippets-btn:hover {
+  background: var(--neon-primary);
+  color: var(--dark-bg);
+  box-shadow: 0 0 15px var(--neon-primary);
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid #ff4444;
+  color: #ff4444;
+}
+
+.logout-btn:hover {
+  background: #ff4444;
+  color: var(--dark-bg);
+  box-shadow: 0 0 15px #ff4444;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
   .profile-card {
-    background: rgba(26, 26, 26, 0.9);
-    border: 1px solid var(--neon-primary);
-    border-radius: 10px;
-    padding: 2rem;
-    max-width: 600px;
-    margin: 0 auto;
-    box-shadow: 0 0 20px var(--neon-primary);
-    animation: fadeIn 0.5s ease-in;
-  }
-  
-  .profile-header {
-    text-align: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--neon-primary);
-  }
-  
-  .profile-content {
-    padding: 1rem 0;
-  }
-  
-  .info-item {
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    background: rgba(0, 255, 255, 0.05);
-    border-radius: 8px;
-    transition: all 0.3s ease;
-  }
-  
-  .info-item:hover {
-    background: rgba(0, 255, 255, 0.1);
-    transform: translateX(10px);
-  }
-  
-  .info-label {
-    display: block;
-    color: var(--neon-primary);
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .info-value {
-    display: block;
-    color: white;
-    font-size: 1.1rem;
+    margin: 20px;
   }
   
   .profile-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
+    flex-direction: column;
   }
   
-  .snippets-btn,
-  .logout-btn {
-    flex: 1;
-    padding: 10px;
-    transition: all 0.3s ease;
+  .info-item:hover {
+    transform: none;
   }
-  
-  .snippets-btn {
-    background: transparent;
-    border: 1px solid var(--neon-primary);
-    color: var(--neon-primary);
-  }
-  
-  .snippets-btn:hover {
-    background: var(--neon-primary);
-    color: var(--dark-bg);
-    box-shadow: 0 0 15px var(--neon-primary);
-  }
-  
-  .logout-btn {
-    background: transparent;
-    border: 1px solid #ff4444;
-    color: #ff4444;
-  }
-  
-  .logout-btn:hover {
-    background: #ff4444;
-    color: var(--dark-bg);
-    box-shadow: 0 0 15px #ff4444;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .profile-card {
-      margin: 20px;
-    }
-    
-    .profile-actions {
-      flex-direction: column;
-    }
-    
-    .info-item:hover {
-      transform: none;
-    }
-  }
+}

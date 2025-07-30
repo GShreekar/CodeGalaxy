@@ -1,8 +1,6 @@
-// src/features/authSlice.js
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Load initial state from localStorage
 const loadInitialState = () => {
   const user = localStorage.getItem('user');
   const token = localStorage.getItem('token');
@@ -23,7 +21,6 @@ export const login = createAsyncThunk(
         credentials
       );
       
-      // Store token separately
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
       }

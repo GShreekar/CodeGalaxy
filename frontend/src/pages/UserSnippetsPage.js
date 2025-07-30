@@ -1,4 +1,3 @@
-// src/pages/UserSnippetsPage.js
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchBar from '../components/SearchBar';
@@ -17,7 +16,6 @@ const UserSnippetsPage = () => {
     dispatch(fetchAllUserSnippets());
   }, [dispatch]);
 
-  // Get unique users
   const users = [...new Set(snippets.map(snippet => snippet.author))];
 
   const filteredSnippets = snippets.filter(snippet =>

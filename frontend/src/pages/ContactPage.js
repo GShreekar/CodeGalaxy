@@ -1,4 +1,3 @@
-// src/pages/ContactPage.js
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { submitContact } from '../features/contactSlice';

@@ -1,4 +1,3 @@
-/* src/pages/CommentPage.css */
 .comment-page {
   min-height: 100vh;
   background-color: var(--dark-bg);
@@ -115,7 +114,6 @@
   color: var(--neon-primary);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .snippet-card,
   .comments-section {

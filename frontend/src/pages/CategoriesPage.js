@@ -1,4 +1,3 @@
-// src/pages/CategoriesPage.js
 import { useState } from 'react';
 import SearchBar from '../components/SearchBar';
 import CategoryCard from '../components/CategoryCard';

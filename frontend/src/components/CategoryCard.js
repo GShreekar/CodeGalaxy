@@ -1,11 +1,7 @@
-// src/components/CategoryCard.js
 import { Link } from 'react-router-dom';
-import './CategoryCard.css';
+import './styles.css';
 
-// frontend/src/components/CategoryCard.js
 const CategoryCard = ({ language, count }) => {
-  // Debug log
-  console.log(`CategoryCard - language: ${language}, count: ${count}`);
   
   return (
     <div className="category-card">

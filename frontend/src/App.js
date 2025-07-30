@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -47,7 +46,6 @@ function App() {
             <Route path="/language/:language" element={<LanguagePage />} />
             <Route path="/community" element={<UserSnippetsPage />} />
             
-            {/* Protected Routes */}
             <Route element={<PrivateRoute />}>
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/my-snippets" element={<MySnippetsPage />} />

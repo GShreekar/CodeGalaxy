@@ -1,4 +1,3 @@
-// src/components/Navbar.js
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import './styles.css';
