@@ -1,4 +1,3 @@
-// routes/contactRoutes.js
 import express from 'express';
 import { submitContact, contactLimiter } from '../controllers/contactController.js';
 
