@@ -2,6 +2,15 @@ import { User } from '../models/index.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
+const TOKEN_EXPIRY = '7d';
+
+const signToken = (user) =>
+  jwt.sign(
+    { id: user._id, tokenVersion: user.tokenVersion },
+    process.env.JWT_SECRET,
+    { expiresIn: TOKEN_EXPIRY }
+  );
+
 export const registerUser = async (req, res) => {
   try {
     const { name, username, email, password } = req.body;
@@ -30,19 +39,13 @@ export const registerUser = async (req, res) => {
       password
     });
 
-    const token = jwt.sign(
-      { id: user._id }, 
-      process.env.JWT_SECRET, 
-      { expiresIn: '30d' }
-    );
-
     res.status(201).json({
       success: true,
       _id: user._id,
       name: user.name,
       username: user.username,
       email: user.email,
-      token
+      token: signToken(user)
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -66,22 +69,16 @@ export const loginUser = async (req, res) => {
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(401).json({
-        message: 'User not found.'
+        message: 'Invalid credentials'
       });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
-        message: 'Incorrect password.'
+        message: 'Invalid credentials'
       });
     }
-
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: '30d' }
-    );
 
     res.json({
       success: true,
@@ -89,13 +86,26 @@ export const loginUser = async (req, res) => {
       name: user.name,
       username: user.username,
       email: user.email,
-      token
+      token: signToken(user)
     });
-    
+
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({
       message: 'An error occurred while logging in. Please try again later.'
+    });
+  }
+};
+
+export const logoutUser = async (req, res) => {
+  try {
+    req.user.tokenVersion += 1;
+    await req.user.save();
+    res.json({ message: 'Logged out' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({
+      message: 'An error occurred while logging out. Please try again later.'
     });
   }
 };

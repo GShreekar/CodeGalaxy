@@ -2,7 +2,7 @@ import { Contact } from '../models/index.js';
 import rateLimit from 'express-rate-limit';
 
 export const contactLimiter = rateLimit({
-  windiwMs: 60 * 60 * 1000,
+  windowMs: 60 * 60 * 1000,
   max: 3,
   message: { message: 'Too many contact requests, please try again later.' },
   standardHeaders: true,

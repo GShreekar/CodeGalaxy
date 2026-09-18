@@ -2,9 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import helmet from 'helmet';
+import compression from 'compression';
+import mongoSanitize from 'express-mongo-sanitize';
 import errorHandler from './middleware/errorHandler.js';
 import { apiLimiter } from './middleware/rateLimit.js';
-import { contactLimiter } from './controllers/contactController.js';
 
 dotenv.config();
 
@@ -15,6 +17,9 @@ const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+app.disable('x-powered-by');
+app.use(helmet());
+app.use(compression());
 app.use(cors({
   origin: (origin, callback) => {
     // no origin means a same-origin or non-browser request (e.g. curl, server-to-server)
@@ -24,10 +29,10 @@ app.use(cors({
   credentials: true,
   optionsSuccessStatus: 200
 }));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '256kb' }));
+app.use(express.urlencoded({ extended: true, limit: '256kb' }));
+app.use(mongoSanitize());
 app.use('/api', apiLimiter);
-app.use('/api/contact', contactLimiter);
 
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';

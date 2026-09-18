@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  // bumped on logout to invalidate every JWT issued before that point
+  tokenVersion: {
+    type: Number,
+    default: 0
+  },
   usersnippets: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Snippet'

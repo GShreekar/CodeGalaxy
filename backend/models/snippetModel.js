@@ -24,11 +24,13 @@ const snippetSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    maxlength: 120
   },
   description: {
     type: String,
-    required: true
+    required: true,
+    maxlength: 2000
   },
   language: {
     type: String,
@@ -37,7 +39,8 @@ const snippetSchema = new mongoose.Schema({
   },
   code: {
     type: String,
-    required: true
+    required: true,
+    maxlength: 100000
   },
   upvotes: { type: Number, default: 0 },
   downvotes: { type: Number, default: 0 },

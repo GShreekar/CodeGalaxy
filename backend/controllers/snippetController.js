@@ -1,18 +1,21 @@
 import { Snippet, User } from '../models/index.js';
 
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 export const getSnippets = async (req, res) => {
   try {
     const { language, sort, search } = req.query;
     let query = {};
-    
+
     if (language) {
       query.language = language;
     }
-    
+
     if (search) {
+      const safeSearch = escapeRegex(String(search).slice(0, 100));
       query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
+        { title: { $regex: safeSearch, $options: 'i' } },
+        { description: { $regex: safeSearch, $options: 'i' } }
       ];
     }
     

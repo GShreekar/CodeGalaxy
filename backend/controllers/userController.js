@@ -1,26 +1,5 @@
 import { User } from '../models/index.js';
 
-
-export const createUser = async (req, res) => {
-  try {
-    const { name, username, email, password } = req.body;
-    const user = await User.create({
-      name,
-      username,
-      email,
-      password
-    });
-    res.status(201).json({
-      id: user._id,
-      name: user.name,
-      username: user.username,
-      email: user.email
-    });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
 export const getUserDetails = async (req, res) => {
   try {
     const user = await User.findById(req.user._id)

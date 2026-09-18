@@ -74,18 +74,34 @@ export const loadUser = createAsyncThunk(
   }
 );
 
+export const logout = createAsyncThunk(
+  'auth/logout',
+  async (_, { getState }) => {
+    const { token } = getState().auth;
+    if (!token) return;
+    // revokes the token server-side (bumps tokenVersion); the local session
+    // is cleared below regardless of whether this call succeeds
+    await axios.post(
+      `${process.env.REACT_APP_API_URL}/logout`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+  }
+);
+
+const clearSession = (state) => {
+  state.user = null;
+  state.token = null;
+  state.loading = false;
+  state.error = null;
+  localStorage.removeItem('user');
+  localStorage.removeItem('token');
+};
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: loadInitialState(),
   reducers: {
-    logout: (state) => {
-      state.user = null;
-      state.token = null;
-      state.loading = false;
-      state.error = null;
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
-    },
     clearError: (state) => {
       state.error = null;
     }
@@ -140,9 +156,11 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = null;
         state.token = null;
-      });
+      })
+      .addCase(logout.fulfilled, clearSession)
+      .addCase(logout.rejected, clearSession);
   }
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { clearError } = authSlice.actions;
 export default authSlice.reducer;
