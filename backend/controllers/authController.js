@@ -22,14 +22,12 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
+    // password is hashed by the User model's pre('save') hook
     const user = await User.create({
       name,
       username,
       email,
-      password: hashedPassword
+      password
     });
 
     const token = jwt.sign(

@@ -126,6 +126,20 @@ const authSlice = createSlice({
         state.error = action.payload;
         state.user = null;
         state.token = null;
+      })
+      .addCase(loadUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(loadUser.fulfilled, (state, action) => {
+        state.loading = false;
+        // GET /api/user doesn't return a token, so keep the one already in state
+        state.user = { ...action.payload, token: state.token };
+        localStorage.setItem('user', JSON.stringify(state.user));
+      })
+      .addCase(loadUser.rejected, (state) => {
+        state.loading = false;
+        state.user = null;
+        state.token = null;
       });
   }
 });

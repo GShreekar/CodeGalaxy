@@ -17,17 +17,17 @@ export const submitContact = async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    const sanitiedData = {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    const sanitizedData = {
       name: name.trim().slice(0, 100),
       email: email.trim().toLowerCase().slice(0, 100),
       subject: subject.trim().slice(0, 200),
       text: text.trim().slice(0, 1000)
     };
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ message: 'Invalid email format' });
-    }
 
     const contact = await Contact.create(sanitizedData);
 

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './styles.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { upvoteSnippet, downvoteSnippet } from '../features/snippetSlice';
+import { toPrismLanguage } from '../utils/languages';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { FaArrowUp, FaArrowDown, FaComment, FaCopy, FaCheck } from 'react-icons/fa';
@@ -50,7 +51,7 @@ const SnippetCard = ({ snippet }) => {
 
         <div className="code-block">
           <SyntaxHighlighter 
-            language={snippet.language === 'C++' ? 'cpp' : snippet.language.toLowerCase()}
+            language={toPrismLanguage(snippet.language)}
             style={vscDarkPlus}
             customStyle={{
               background: 'rgba(0, 0, 0, 0.3)',

@@ -5,14 +5,9 @@ import './CategoriesPage.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { getLanguageStats } from '../features/snippetSlice';
+import { LANGUAGES } from '../utils/languages';
 
 const CategoriesPage = () => {
-  const languages = [
-    'JavaScript', 'Python', 'Java', 'C++',
-    'Ruby', 'PHP', 'Go', 'Swift',
-    'Rust', 'TypeScript', 'Kotlin', 'SQL'
-  ];
-
   const [searchQuery, setSearchQuery] = useState('');
   const dispatch = useDispatch();
   const { languageStats } = useSelector(state => state.snippets);
@@ -21,7 +16,7 @@ const CategoriesPage = () => {
     dispatch(getLanguageStats());
   }, [dispatch]);
 
-  const filteredLanguages = languages.filter(lang =>
+  const filteredLanguages = LANGUAGES.filter(lang =>
     lang.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

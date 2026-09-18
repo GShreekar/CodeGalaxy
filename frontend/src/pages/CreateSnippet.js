@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createSnippet } from '../features/snippetSlice';
+import { LANGUAGES, toPrismLanguage } from '../utils/languages';
 import './CreateSnippet.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -18,12 +19,6 @@ const CreateSnippet = () => {
     language: '',
     code: ''
   });
-
-  const languages = [
-    'JavaScript', 'Python', 'Java', 'C++',
-    'Ruby', 'PHP', 'Go', 'Swift',
-    'Rust', 'TypeScript', 'Kotlin', 'SQL'
-  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -77,7 +72,7 @@ const CreateSnippet = () => {
                 required
               >
                 <option value="">Select Language</option>
-                {languages.map(lang => (
+                {LANGUAGES.map(lang => (
                   <option key={lang} value={lang}>{lang}</option>
                 ))}
               </select>
@@ -97,8 +92,8 @@ const CreateSnippet = () => {
               <div className="col-md-6 mb-3">
                 <div className="preview-container">
                   <h5 className="preview-title neon-text">Preview</h5>
-                  <SyntaxHighlighter 
-                    language={'C++' ? 'cpp' : formData.language.toLowerCase()}
+                  <SyntaxHighlighter
+                    language={toPrismLanguage(formData.language)}
                     style={vscDarkPlus}
                     customStyle={{
                       margin: 0,
