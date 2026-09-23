@@ -60,10 +60,23 @@
 }
 
 .snippets-btn,
+.public-profile-btn,
 .logout-btn {
   flex: 1;
   padding: 10px;
   transition: all 0.3s ease;
+}
+
+.public-profile-btn {
+  background: transparent;
+  border: 1px solid var(--neon-secondary);
+  color: var(--neon-secondary);
+}
+
+.public-profile-btn:hover {
+  background: var(--neon-secondary);
+  color: var(--dark-bg);
+  box-shadow: 0 0 15px var(--neon-secondary);
 }
 
 .snippets-btn {

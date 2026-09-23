@@ -83,7 +83,7 @@ const SnippetCard = ({ snippet }) => {
       <div className="card-body">
         <h5 className="card-title neon-text">{snippet.title}</h5>
         <h6 className="card-subtitle mb-2 text-muted">
-          by {snippet.author}
+          by <Link to={`/user/${encodeURIComponent(snippet.author)}`} className="author-link">{snippet.author}</Link>
           {snippet.author !== "CodeGalaxy" && (
             <span className="ms-2 text-muted">
               {new Date(snippet.createdAt).toLocaleDateString()}

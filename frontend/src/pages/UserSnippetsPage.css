@@ -30,17 +30,6 @@
   border: 1px solid var(--neon-primary);
 }
 
-.neon-select {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--neon-primary);
-  color: white;
-}
-
-.neon-select:focus {
-  box-shadow: 0 0 10px var(--neon-primary);
-  border-color: var(--neon-secondary);
-}
-
 .user-header {
   text-align: center;
   padding: 10px;

@@ -1,12 +1,8 @@
 import { Snippet, User } from '../models/index.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
+import { listSnippets } from '../services/snippetService.js';
 
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-const SORTS = {
-  newest: { createdAt: -1 },
-  popular: { score: -1, createdAt: -1 }
-};
 
 const buildSnippetFilter = ({ language, search, author, excludeAuthor }) => {
   const filter = {};
@@ -38,23 +34,7 @@ export const getSnippets = asyncHandler(async (req, res) => {
   const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
 
   const filter = buildSnippetFilter({ language, search, author, excludeAuthor });
-  const sortOption = SORTS[sort] || SORTS.newest;
-
-  const [items, total] = await Promise.all([
-    Snippet.aggregate([
-      { $match: filter },
-      { $addFields: {
-          score: { $subtract: [{ $size: '$upvoters' }, { $size: '$downvoters' }] }
-      } },
-      { $sort: sortOption },
-      { $skip: (page - 1) * limit },
-      { $limit: limit },
-      { $project: { comments: 0 } }
-    ]).allowDiskUse(true),
-    Snippet.countDocuments(filter)
-  ]);
-
-  res.json({ items, page, limit, total, pages: Math.ceil(total / limit) || 1 });
+  res.json(await listSnippets({ filter, sort, page, limit }));
 });
 
 export const getSnippetById = asyncHandler(async (req, res) => {

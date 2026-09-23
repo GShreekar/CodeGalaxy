@@ -78,6 +78,18 @@ export const fetchSnippetAuthors = createAsyncThunk(
   }
 );
 
+export const fetchUserSnippets = createAsyncThunk(
+  'snippets/fetchUserSnippets',
+  async ({ username, sort = '', page = 1 }) => {
+    const params = new URLSearchParams();
+    if (sort) params.append('sort', sort);
+    params.append('page', page);
+
+    const response = await api.get(`/user/${username}/snippets?${params}`);
+    return response.data;
+  }
+);
+
 export const upvoteSnippet = createAsyncThunk(
   'snippets/upvoteSnippet',
   async (snippetId, { rejectWithValue }) => {
@@ -114,6 +126,19 @@ const replaceInItems = (state, snippet) => {
   if (state.currentSnippet?._id === snippet._id) {
     state.currentSnippet = snippet;
   }
+};
+
+// shared by fetchSnippets and fetchUserSnippets — both return the same
+// { items, page, limit, total, pages } shape from the same backend service
+const applySnippetsPage = (state, action) => {
+  state.loading = false;
+  const { items, page, limit, total, pages } = action.payload;
+  // page > 1 means this came from a "Load more" click: append instead of replace
+  state.items = (action.meta.arg?.page ?? 1) > 1 ? [...state.items, ...items] : items;
+  state.page = page;
+  state.limit = limit;
+  state.total = total;
+  state.pages = pages;
 };
 
 const snippetSlice = createSlice({
@@ -184,17 +209,17 @@ const snippetSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchSnippets.fulfilled, (state, action) => {
-        state.loading = false;
-        const { items, page, limit, total, pages } = action.payload;
-        // page > 1 means this came from a "Load more" click: append instead of replace
-        state.items = (action.meta.arg?.page ?? 1) > 1 ? [...state.items, ...items] : items;
-        state.page = page;
-        state.limit = limit;
-        state.total = total;
-        state.pages = pages;
-      })
+      .addCase(fetchSnippets.fulfilled, applySnippetsPage)
       .addCase(fetchSnippets.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchUserSnippets.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUserSnippets.fulfilled, applySnippetsPage)
+      .addCase(fetchUserSnippets.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

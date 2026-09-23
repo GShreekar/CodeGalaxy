@@ -22,6 +22,7 @@ const CommentPage = lazy(() => import('./pages/CommentPage'));
 const SearchResultPage = lazy(() => import('./pages/SearchResultPage'));
 const LanguagePage = lazy(() => import('./pages/LanguagePage'));
 const UserSnippetsPage = lazy(() => import('./pages/UserSnippetsPage'));
+const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 function App() {
@@ -58,6 +59,7 @@ function App() {
               <Route path="/search" element={<SearchResultPage />} />
               <Route path="/language/:language" element={<LanguagePage />} />
               <Route path="/community" element={<UserSnippetsPage />} />
+              <Route path="/user/:username" element={<UserProfilePage />} />
 
               <Route element={<PrivateRoute />}>
                 <Route path="/profile" element={<ProfilePage />} />

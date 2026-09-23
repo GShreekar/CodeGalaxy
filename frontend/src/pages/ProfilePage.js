@@ -43,8 +43,14 @@ const ProfilePage = () => {
               <Link to="/my-snippets" className="btn btn-primary snippets-btn">
                 My Snippets
               </Link>
-              
-              <button 
+
+              {user?.username && (
+                <Link to={`/user/${encodeURIComponent(user.username)}`} className="btn public-profile-btn">
+                  View Public Profile
+                </Link>
+              )}
+
+              <button
                 onClick={handleLogout}
                 className="btn btn-danger logout-btn"
               >
