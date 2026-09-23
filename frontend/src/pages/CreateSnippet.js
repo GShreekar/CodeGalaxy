@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { createSnippet } from '../features/snippetSlice';
 import { LANGUAGES, toPrismLanguage } from '../utils/languages';
 import './CreateSnippet.css';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import SyntaxHighlighter from '../utils/syntaxHighlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 

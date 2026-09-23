@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './styles.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { upvoteSnippet, downvoteSnippet } from '../features/snippetSlice';
 import { toPrismLanguage } from '../utils/languages';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import SyntaxHighlighter from '../utils/syntaxHighlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { FaArrowUp, FaArrowDown, FaComment, FaCopy, FaCheck } from 'react-icons/fa';
 
@@ -88,7 +88,7 @@ const SnippetCard = ({ snippet }) => {
             title="View comments"
           >
             <FaComment />
-            <span>Comments ({snippet.comments?.length || 0})</span>
+            <span>Comments ({snippet.commentCount ?? snippet.comments?.length ?? 0})</span>
           </Link>
 
           <button 
@@ -105,4 +105,4 @@ const SnippetCard = ({ snippet }) => {
   );
 };
 
-export default SnippetCard;
+export default memo(SnippetCard);

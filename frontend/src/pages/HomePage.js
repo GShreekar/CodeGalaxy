@@ -2,20 +2,16 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchBar from '../components/SearchBar';
 import SnippetCard from '../components/SnippetCard';
-import { fetchSnippets } from '../features/snippetSlice';
+import { fetchTrendingSnippets } from '../features/snippetSlice';
 import './HomePage.css';
 
 const HomePage = () => {
   const dispatch = useDispatch();
-  const { snippets, loading } = useSelector(state => state.snippets);
+  const { trending } = useSelector(state => state.snippets);
 
   useEffect(() => {
-    dispatch(fetchSnippets());
+    dispatch(fetchTrendingSnippets({ limit: 3 }));
   }, [dispatch]);
-
-  const trendingSnippets = [...snippets]
-    .sort((a, b) => b.upvotes - a.upvotes)
-    .slice(0, 3);
 
   return (
     <div className="home-page">
@@ -36,7 +32,7 @@ const HomePage = () => {
         <div className="container">
           <h2 className="section-title">Trending Snippets</h2>
           <div className="row g-4">
-            {trendingSnippets.map(snippet => (
+            {trending.map(snippet => (
               <div key={snippet._id} className="col-12 col-md-6 col-lg-4">
                 <SnippetCard snippet={snippet} />
               </div>

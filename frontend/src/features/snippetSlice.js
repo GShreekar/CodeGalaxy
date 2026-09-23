@@ -30,13 +30,37 @@ export const createSnippet = createAsyncThunk(
 
 export const fetchSnippets = createAsyncThunk(
   'snippets/fetchSnippets',
-  async ({ search = '', language = '', sort = '' } = {}) => {
+  async ({ search = '', language = '', sort = '', author = '', excludeAuthor = '', page = 1, limit = '' } = {}) => {
     const params = new URLSearchParams();
     if (search) params.append('search', search);
     if (language) params.append('language', language);
     if (sort) params.append('sort', sort);
+    if (author) params.append('author', author);
+    if (excludeAuthor) params.append('excludeAuthor', excludeAuthor);
+    if (limit) params.append('limit', limit);
+    params.append('page', page);
 
     const response = await axios.get(`${API_URL}/snippet?${params}`);
+    return response.data;
+  }
+);
+
+export const fetchTrendingSnippets = createAsyncThunk(
+  'snippets/fetchTrendingSnippets',
+  async ({ language = '', limit = '' } = {}) => {
+    const params = new URLSearchParams();
+    if (language) params.append('language', language);
+    if (limit) params.append('limit', limit);
+
+    const response = await axios.get(`${API_URL}/snippet/trending?${params}`);
+    return response.data;
+  }
+);
+
+export const fetchSnippetAuthors = createAsyncThunk(
+  'snippets/fetchSnippetAuthors',
+  async () => {
+    const response = await axios.get(`${API_URL}/snippet/authors`);
     return response.data;
   }
 );
@@ -61,14 +85,6 @@ export const downvoteSnippet = createAsyncThunk(
   }
 );
 
-export const fetchAllUserSnippets = createAsyncThunk(
-  'snippets/fetchAllUserSnippets',
-  async () => {
-    const response = await axios.get(`${API_URL}/snippet/users/all`);
-    return response.data;
-  }
-);
-
 export const getLanguageStats = createAsyncThunk(
   'snippets/getLanguageStats',
   async () => {
@@ -77,10 +93,26 @@ export const getLanguageStats = createAsyncThunk(
   }
 );
 
+const replaceInItems = (state, snippet) => {
+  const index = state.items.findIndex(s => s._id === snippet._id);
+  if (index !== -1) {
+    state.items[index] = snippet;
+  }
+  if (state.currentSnippet?._id === snippet._id) {
+    state.currentSnippet = snippet;
+  }
+};
+
 const snippetSlice = createSlice({
   name: 'snippets',
   initialState: {
-    snippets: [],
+    items: [],
+    page: 1,
+    limit: 20,
+    total: 0,
+    pages: 1,
+    trending: [],
+    authors: [],
     currentSnippet: null,
     languageStats: [],
     loading: false,
@@ -109,13 +141,7 @@ const snippetSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(addComment.fulfilled, (state, action) => {
-        const index = state.snippets.findIndex(s => s._id === action.payload._id);
-        if (index !== -1) {
-          state.snippets[index] = action.payload;
-        }
-        if (state.currentSnippet?._id === action.payload._id) {
-          state.currentSnippet = action.payload;
-        }
+        replaceInItems(state, action.payload);
       })
       .addCase(createSnippet.pending, (state) => {
         state.loading = true;
@@ -123,7 +149,8 @@ const snippetSlice = createSlice({
       })
       .addCase(createSnippet.fulfilled, (state, action) => {
         state.loading = false;
-        state.snippets.unshift(action.payload);
+        state.items.unshift(action.payload);
+        state.total += 1;
       })
       .addCase(createSnippet.rejected, (state, action) => {
         state.loading = false;
@@ -135,41 +162,29 @@ const snippetSlice = createSlice({
       })
       .addCase(fetchSnippets.fulfilled, (state, action) => {
         state.loading = false;
-        state.snippets = action.payload;
+        const { items, page, limit, total, pages } = action.payload;
+        // page > 1 means this came from a "Load more" click: append instead of replace
+        state.items = (action.meta.arg?.page ?? 1) > 1 ? [...state.items, ...items] : items;
+        state.page = page;
+        state.limit = limit;
+        state.total = total;
+        state.pages = pages;
       })
       .addCase(fetchSnippets.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
+      .addCase(fetchTrendingSnippets.fulfilled, (state, action) => {
+        state.trending = action.payload;
+      })
+      .addCase(fetchSnippetAuthors.fulfilled, (state, action) => {
+        state.authors = action.payload;
+      })
       .addCase(upvoteSnippet.fulfilled, (state, action) => {
-        const index = state.snippets.findIndex(s => s._id === action.payload._id);
-        if (index !== -1) {
-          state.snippets[index] = action.payload;
-        }
-        if (state.currentSnippet?._id === action.payload._id) {
-          state.currentSnippet = action.payload;
-        }
+        replaceInItems(state, action.payload);
       })
       .addCase(downvoteSnippet.fulfilled, (state, action) => {
-        const index = state.snippets.findIndex(s => s._id === action.payload._id);
-        if (index !== -1) {
-          state.snippets[index] = action.payload;
-        }
-        if (state.currentSnippet?._id === action.payload._id) {
-          state.currentSnippet = action.payload;
-        }
-      })
-      .addCase(fetchAllUserSnippets.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchAllUserSnippets.fulfilled, (state, action) => {
-        state.loading = false;
-        state.snippets = action.payload;
-      })
-      .addCase(fetchAllUserSnippets.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
+        replaceInItems(state, action.payload);
       })
       .addCase(getLanguageStats.fulfilled, (state, action) => {
         state.languageStats = action.payload;

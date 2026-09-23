@@ -7,11 +7,18 @@ import {
   upvoteSnippet,
   downvoteSnippet,
   addComment,
-  getAllUserSnippets,
+  getSnippetAuthors,
+  getTrendingSnippets,
   getLanguageStats
 } from '../controllers/snippetController.js';
 
 const router = express.Router();
+
+// these must be registered before '/:id' or Express would treat
+// "authors"/"trending"/"stats" as an :id value
+router.get('/authors', getSnippetAuthors);
+router.get('/trending', getTrendingSnippets);
+router.get('/stats/languages', getLanguageStats);
 
 router.get('/', getSnippets);
 router.get('/:id', getSnippetById);
@@ -19,7 +26,5 @@ router.post('/', protect, createSnippet);
 router.post('/:id/upvote', protect, upvoteSnippet);
 router.post('/:id/downvote', protect, downvoteSnippet);
 router.post('/:id/comment', protect, addComment);
-router.get('/users/all', getAllUserSnippets);
-router.get('/stats/languages', getLanguageStats);
 
 export default router;

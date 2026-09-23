@@ -10,7 +10,7 @@ import './LanguagePage.css';
 const LanguagePage = () => {
   const { language } = useParams();
   const dispatch = useDispatch();
-  const { snippets, loading, error } = useSelector(state => state.snippets);
+  const { items, page, pages, loading, error } = useSelector(state => state.snippets);
   const [searchQuery, setSearchQuery] = useState('');
 
   const normalizeLanguageName = (lang) => {
@@ -25,17 +25,23 @@ const LanguagePage = () => {
 
   useEffect(() => {
     const normalizedLanguage = normalizeLanguageName(language);
-    dispatch(fetchSnippets({ language: normalizedLanguage }));
+    setSearchQuery('');
+    dispatch(fetchSnippets({ language: normalizedLanguage, page: 1 }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, language]);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
     const normalizedLanguage = normalizeLanguageName(language);
-    dispatch(fetchSnippets({ language: normalizedLanguage, search: query }));
+    dispatch(fetchSnippets({ language: normalizedLanguage, search: query, page: 1 }));
   };
 
-  if (loading) return <Loader />;
-  if (snippets.length === 0) return <div className="text-center">No snippets found</div>;
+  const handleLoadMore = () => {
+    const normalizedLanguage = normalizeLanguageName(language);
+    dispatch(fetchSnippets({ language: normalizedLanguage, search: searchQuery, page: page + 1 }));
+  };
+
+  if (loading && page === 1) return <Loader />;
 
   return (
     <div className="language-page">
@@ -45,7 +51,7 @@ const LanguagePage = () => {
         </h1>
 
         <div className="search-container mb-4">
-          <SearchBar 
+          <SearchBar
             onSearch={handleSearch}
             placeholder={`Search ${normalizeLanguageName(language)} snippets...`}
           />
@@ -57,13 +63,26 @@ const LanguagePage = () => {
           </div>
         )}
 
-        <div className="row g-4">
-          {snippets.map(snippet => (
-            <div key={snippet._id} className="col-12 col-md-6 col-lg-4">
-              <SnippetCard snippet={snippet} />
+        {items.length === 0 ? (
+          <div className="text-center">No snippets found</div>
+        ) : (
+          <>
+            <div className="row g-4">
+              {items.map(snippet => (
+                <div key={snippet._id} className="col-12 col-md-6 col-lg-4">
+                  <SnippetCard snippet={snippet} />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+            {page < pages && (
+              <div className="text-center mt-4">
+                <button className="btn btn-primary" onClick={handleLoadMore} disabled={loading}>
+                  {loading ? 'Loading...' : 'Load more'}
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

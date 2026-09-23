@@ -44,14 +44,41 @@ app.use('/api/user', userRoutes);
 app.use('/api/snippet', snippetRoutes);
 app.use('/api/contact', contactRoutes);
 
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    db: mongoose.connection.readyState,
+    uptime: process.uptime()
+  });
+});
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+const start = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('Connected to MongoDB');
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+    const server = app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+
+    const shutdown = (signal) => {
+      console.log(`${signal} received, shutting down`);
+      server.close(async () => {
+        await mongoose.connection.close();
+        process.exit(0);
+      });
+      setTimeout(() => process.exit(1), 10_000).unref();
+    };
+
+    ['SIGTERM', 'SIGINT'].forEach((signal) => process.on(signal, () => shutdown(signal)));
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+start();

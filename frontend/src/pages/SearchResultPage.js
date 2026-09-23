@@ -9,17 +9,21 @@ import './SearchResultPage.css';
 const SearchResultPage = () => {
   const location = useLocation();
   const dispatch = useDispatch();
-  const { snippets, loading } = useSelector(state => state.snippets);
+  const { items, page, pages, total, loading } = useSelector(state => state.snippets);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const query = params.get('q') || '';
     setSearchQuery(query);
-    dispatch(fetchSnippets({ search: query }));
+    dispatch(fetchSnippets({ search: query, page: 1 }));
   }, [dispatch, location.search]);
 
-  if (loading) return <Loader />;
+  const handleLoadMore = () => {
+    dispatch(fetchSnippets({ search: searchQuery, page: page + 1 }));
+  };
+
+  if (loading && page === 1) return <Loader />;
 
   return (
     <div className="search-result-page">
@@ -29,11 +33,11 @@ const SearchResultPage = () => {
             Search Results for "{searchQuery}"
           </h2>
           <p className="result-count">
-            {snippets.length} {snippets.length === 1 ? 'result' : 'results'} found
+            {total} {total === 1 ? 'result' : 'results'} found
           </p>
         </div>
 
-        {snippets.length === 0 ? (
+        {items.length === 0 ? (
           <div className="no-results">
             <h3 className="text-center">No snippets found</h3>
             <p className="text-center text-muted">
@@ -41,13 +45,22 @@ const SearchResultPage = () => {
             </p>
           </div>
         ) : (
-          <div className="row g-4">
-            {snippets.map(snippet => (
-              <div key={snippet._id} className="col-12 col-md-6 col-lg-4">
-                <SnippetCard snippet={snippet} />
+          <>
+            <div className="row g-4">
+              {items.map(snippet => (
+                <div key={snippet._id} className="col-12 col-md-6 col-lg-4">
+                  <SnippetCard snippet={snippet} />
+                </div>
+              ))}
+            </div>
+            {page < pages && (
+              <div className="text-center mt-4">
+                <button className="btn btn-primary" onClick={handleLoadMore} disabled={loading}>
+                  {loading ? 'Loading...' : 'Load more'}
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </div>

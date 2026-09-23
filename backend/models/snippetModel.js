@@ -42,12 +42,29 @@ const snippetSchema = new mongoose.Schema({
     required: true,
     maxlength: 100000
   },
-  upvotes: { type: Number, default: 0 },
-  downvotes: { type: Number, default: 0 },
+  // net score is derived from these arrays at query time (see getSnippets/getTrendingSnippets)
+  // rather than stored as a separate counter, so it can never drift out of sync
   upvoters: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   downvoters: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  comments: [commentSchema]
+  comments: [commentSchema],
+  // kept in sync atomically with comments so list views can show a count
+  // without shipping the whole comments array over the wire
+  commentCount: { type: Number, default: 0 }
 }, { timestamps: true });
+
+snippetSchema.index({ createdAt: -1 });
+snippetSchema.index({ language: 1, createdAt: -1 });
+snippetSchema.index({ author: 1, createdAt: -1 });
+snippetSchema.index(
+  { title: 'text', description: 'text', code: 'text' },
+  {
+    weights: { title: 10, description: 5, code: 1 },
+    name: 'snippet_text',
+    // our own `language` field (e.g. "JavaScript") would otherwise be read by MongoDB
+    // as the text-search stemming language and rejected as invalid
+    language_override: 'textSearchLanguage'
+  }
+);
 
 const Snippet = mongoose.model('Snippet', snippetSchema);
 export default Snippet;
