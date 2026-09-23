@@ -1,14 +1,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '../utils/axiosConfig';
 
 export const submitContact = createAsyncThunk(
   'contact/submitContact',
-  async (contactData) => {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/contact`,
-      contactData
-    );
-    return response.data;
+  async (contactData, { rejectWithValue }) => {
+    try {
+      const response = await api.post('/contact', contactData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to send message');
+    }
   }
 );
 
@@ -39,7 +40,7 @@ const contactSlice = createSlice({
       })
       .addCase(submitContact.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
       });
   }
 });

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { LANGUAGES } from '../constants/languages.js';
 
 const commentSchema = new mongoose.Schema({
   username: {
@@ -35,7 +36,7 @@ const snippetSchema = new mongoose.Schema({
   language: {
     type: String,
     required: true,
-    enum: ['JavaScript', 'Python', 'Java', 'C++', 'Ruby', 'PHP', 'Go', 'Swift', 'Rust', 'TypeScript', 'Kotlin', 'SQL'] // Add more as needed
+    enum: LANGUAGES
   },
   code: {
     type: String,

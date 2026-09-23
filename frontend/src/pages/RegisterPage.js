@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../features/authSlice';
+import Alert from '../components/Alert';
 import './AuthPage.css';
 
 const RegisterPage = () => {
@@ -94,7 +95,7 @@ const RegisterPage = () => {
               />
               {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
             </div>
-            {errors.submit && <div className="alert alert-danger">{errors.submit}</div>}
+            {errors.submit && <Alert type="danger" message={errors.submit} />}
             <button type="submit" className="btn btn-primary w-100 mb-3">
               Register
             </button>

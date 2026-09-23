@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { login, clearError } from '../features/authSlice';
+import Alert from '../components/Alert';
 import './AuthPage.css';
 
 const LoginPage = () => {
@@ -77,9 +78,7 @@ const LoginPage = () => {
               {errors.password && <div className="invalid-feedback">{errors.password}</div>}
             </div>
             {(errors.submit || error) && (
-              <div className="alert alert-danger">
-                {errors.submit || error}
-              </div>
+              <Alert type="danger" message={errors.submit || error} />
             )}
             <button 
               type="submit" 

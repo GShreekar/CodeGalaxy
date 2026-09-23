@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '../utils/axiosConfig';
 
 const loadInitialState = () => {
   const user = localStorage.getItem('user');
@@ -16,19 +16,16 @@ export const login = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/login`,
-        credentials
-      );
-      
+      const response = await api.post('/login', credentials);
+
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
       }
-      
+
       return response.data;
     } catch (error) {
-      const message = 
-        error.response?.data?.message || 
+      const message =
+        error.response?.data?.message ||
         'Unable to login. Please try again.';
       return rejectWithValue(message);
     }
@@ -39,10 +36,7 @@ export const register = createAsyncThunk(
   'auth/register',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/register`,
-        userData
-      );
+      const response = await api.post('/register', userData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Registration failed');
@@ -59,12 +53,7 @@ export const loadUser = createAsyncThunk(
     }
 
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/user`,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+      const response = await api.get('/user');
       return response.data;
     } catch (error) {
       localStorage.removeItem('token');
@@ -81,11 +70,7 @@ export const logout = createAsyncThunk(
     if (!token) return;
     // revokes the token server-side (bumps tokenVersion); the local session
     // is cleared below regardless of whether this call succeeds
-    await axios.post(
-      `${process.env.REACT_APP_API_URL}/logout`,
-      {},
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    await api.post('/logout');
   }
 );
 
@@ -103,6 +88,15 @@ const authSlice = createSlice({
   initialState: loadInitialState(),
   reducers: {
     clearError: (state) => {
+      state.error = null;
+    },
+    // fired when the axios interceptor sees a 401 outside of login/register:
+    // the token is already invalid server-side, so this only syncs local state
+    // (localStorage was already cleared by the interceptor)
+    sessionExpired: (state) => {
+      state.user = null;
+      state.token = null;
+      state.loading = false;
       state.error = null;
     }
   },
@@ -162,5 +156,5 @@ const authSlice = createSlice({
   }
 });
 
-export const { clearError } = authSlice.actions;
+export const { clearError, sessionExpired } = authSlice.actions;
 export default authSlice.reducer;

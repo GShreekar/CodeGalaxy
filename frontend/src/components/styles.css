@@ -69,6 +69,12 @@
   color: var(--dark-bg);
 }
 
+/* voted state must be readable without relying on color alone (WCAG 1.4.1) */
+.btn-vote.voted {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
 .btn-copy, .btn-comment {
   display: flex;
   align-items: center;
@@ -204,4 +210,41 @@
   font-size: 0.9rem;
   margin: 0.5rem 0;
   opacity: 0.8;
+}
+
+/* Bootstrap's default text-muted (#6c757d) is only ~3.7:1 on this dark
+   background — below the 4.5:1 WCAG AA minimum for body text. Bootstrap sets
+   this color with !important, so it must be matched here to win the cascade. */
+.text-muted {
+  color: #9a9a9a !important;
+}
+
+/* accessible, visible only when it receives keyboard focus */
+.skip-link {
+  position: absolute;
+  top: -3rem;
+  left: 0.5rem;
+  z-index: 1050;
+  background: var(--neon-primary);
+  color: var(--dark-bg);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: 0.5rem;
+}
+
+/* Bootstrap's default focus ring reads poorly on this dark theme */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--neon-primary);
+  outline-offset: 2px;
 }

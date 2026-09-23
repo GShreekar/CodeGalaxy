@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createSnippet } from '../features/snippetSlice';
 import { LANGUAGES, toPrismLanguage } from '../utils/languages';
+import Alert from '../components/Alert';
 import './CreateSnippet.css';
 import SyntaxHighlighter from '../utils/syntaxHighlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -19,6 +20,7 @@ const CreateSnippet = () => {
     language: '',
     code: ''
   });
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,8 +30,8 @@ const CreateSnippet = () => {
         author: user.username
       })).unwrap();
       navigate('/my-snippets');
-    } catch (error) {
-      console.error('Failed to create snippet:', error);
+    } catch (err) {
+      setError(err?.message || 'Failed to create snippet. Please try again.');
     }
   };
 
@@ -40,6 +42,8 @@ const CreateSnippet = () => {
           <h2 className="card-title text-center neon-text mb-4">
             Create New Snippet
           </h2>
+
+          {error && <Alert type="danger" message={error} className="mb-3" />}
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">

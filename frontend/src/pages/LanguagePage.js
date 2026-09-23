@@ -5,6 +5,7 @@ import SearchBar from '../components/SearchBar';
 import SnippetCard from '../components/SnippetCard';
 import Loader from '../components/Loader';
 import { fetchSnippets } from '../features/snippetSlice';
+import Alert from '../components/Alert';
 import './LanguagePage.css';
 
 const LanguagePage = () => {
@@ -57,11 +58,7 @@ const LanguagePage = () => {
           />
         </div>
 
-        {error && (
-          <div className="alert alert-danger">
-            {error}
-          </div>
-        )}
+        {error && <Alert type="danger" message={error} className="mb-4" />}
 
         {items.length === 0 ? (
           <div className="text-center">No snippets found</div>

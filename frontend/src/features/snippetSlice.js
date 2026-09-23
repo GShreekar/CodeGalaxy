@@ -1,13 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
 import api from '../utils/axiosConfig';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 export const fetchSnippetById = createAsyncThunk(
   'snippets/fetchSnippetById',
   async (id) => {
-    const response = await axios.get(`${API_URL}/snippet/${id}`);
+    const response = await api.get(`/snippet/${id}`);
     return response.data;
   }
 );
@@ -40,7 +37,7 @@ export const fetchSnippets = createAsyncThunk(
     if (limit) params.append('limit', limit);
     params.append('page', page);
 
-    const response = await axios.get(`${API_URL}/snippet?${params}`);
+    const response = await api.get(`/snippet?${params}`);
     return response.data;
   }
 );
@@ -52,7 +49,7 @@ export const fetchTrendingSnippets = createAsyncThunk(
     if (language) params.append('language', language);
     if (limit) params.append('limit', limit);
 
-    const response = await axios.get(`${API_URL}/snippet/trending?${params}`);
+    const response = await api.get(`/snippet/trending?${params}`);
     return response.data;
   }
 );
@@ -60,7 +57,7 @@ export const fetchTrendingSnippets = createAsyncThunk(
 export const fetchSnippetAuthors = createAsyncThunk(
   'snippets/fetchSnippetAuthors',
   async () => {
-    const response = await axios.get(`${API_URL}/snippet/authors`);
+    const response = await api.get('/snippet/authors');
     return response.data;
   }
 );
@@ -88,7 +85,7 @@ export const downvoteSnippet = createAsyncThunk(
 export const getLanguageStats = createAsyncThunk(
   'snippets/getLanguageStats',
   async () => {
-    const response = await axios.get(`${API_URL}/snippet/stats/languages`);
+    const response = await api.get('/snippet/stats/languages');
     return response.data;
   }
 );

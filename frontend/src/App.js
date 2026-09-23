@@ -6,7 +6,7 @@ import Loader from './components/Loader';
 import PrivateRoute from './components/PrivateRoute';
 import './App.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { loadUser } from './features/authSlice';
+import { loadUser, sessionExpired } from './features/authSlice';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const SnippetsPage = lazy(() => import('./pages/SnippetsPage'));
@@ -21,6 +21,7 @@ const CommentPage = lazy(() => import('./pages/CommentPage'));
 const SearchResultPage = lazy(() => import('./pages/SearchResultPage'));
 const LanguagePage = lazy(() => import('./pages/LanguagePage'));
 const UserSnippetsPage = lazy(() => import('./pages/UserSnippetsPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 function App() {
   const dispatch = useDispatch();
@@ -32,11 +33,19 @@ function App() {
     }
   }, [dispatch, token]);
 
+  useEffect(() => {
+    // fired by the axios interceptor when a request 401s outside of login/register
+    const handleSessionExpired = () => dispatch(sessionExpired());
+    window.addEventListener('auth:session-expired', handleSessionExpired);
+    return () => window.removeEventListener('auth:session-expired', handleSessionExpired);
+  }, [dispatch]);
+
   return (
     <Router>
+      <a href="#main-content" className="skip-link">Skip to content</a>
       <div className="app">
         <Navbar />
-        <main className="main-content">
+        <main id="main-content" className="main-content">
           <Suspense fallback={<Loader />}>
             <Routes>
               <Route path="/" element={<HomePage />} />
@@ -55,6 +64,8 @@ function App() {
                 <Route path="/create-snippet" element={<CreateSnippet />} />
                 <Route path="/snippet/:id/comments" element={<CommentPage />} />
               </Route>
+
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
         </main>

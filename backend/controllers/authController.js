@@ -1,6 +1,7 @@
 import { User } from '../models/index.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { ApiError, asyncHandler } from '../utils/ApiError.js';
 
 const TOKEN_EXPIRY = '7d';
 
@@ -11,101 +12,48 @@ const signToken = (user) =>
     { expiresIn: TOKEN_EXPIRY }
   );
 
-export const registerUser = async (req, res) => {
-  try {
-    const { name, username, email, password } = req.body;
+export const registerUser = asyncHandler(async (req, res) => {
+  const { name, username, email, password } = req.body;
 
-    if (!name || !username || !email || !password) {
-      return res.status(400).json({
-        message: 'Please provide all required fields: name, username, email, and password.'
-      });
-    }
-
-    const userExists = await User.findOne({ 
-      $or: [{ email }, { username }] 
-    });
-
-    if (userExists) {
-      return res.status(400).json({ 
-        message: 'A user with this email or username already exists. Please try a different email or username.'
-      });
-    }
-
-    // password is hashed by the User model's pre('save') hook
-    const user = await User.create({
-      name,
-      username,
-      email,
-      password
-    });
-
-    res.status(201).json({
-      success: true,
-      _id: user._id,
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      token: signToken(user)
-    });
-  } catch (error) {
-    console.error('Registration error:', error);
-    res.status(400).json({ 
-      success: false,
-      message: 'An error occurred while registering. Please try again later.'
-    });
+  const userExists = await User.findOne({ $or: [{ email }, { username }] });
+  if (userExists) {
+    throw new ApiError(409, 'A user with this email or username already exists. Please try a different email or username.');
   }
-};
 
-export const loginUser = async (req, res) => {
-  try {
-    const { username, password } = req.body;
+  // password is hashed by the User model's pre('save') hook
+  const user = await User.create({ name, username, email, password });
 
-    if (!username || !password) {
-      return res.status(400).json({
-        message: 'Please provide both username and password.'
-      });
-    }
+  res.status(201).json({
+    success: true,
+    _id: user._id,
+    name: user.name,
+    username: user.username,
+    email: user.email,
+    token: signToken(user)
+  });
+});
 
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(401).json({
-        message: 'Invalid credentials'
-      });
-    }
+export const loginUser = asyncHandler(async (req, res) => {
+  const { username, password } = req.body;
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({
-        message: 'Invalid credentials'
-      });
-    }
-
-    res.json({
-      success: true,
-      _id: user._id,
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      token: signToken(user)
-    });
-
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({
-      message: 'An error occurred while logging in. Please try again later.'
-    });
+  const user = await User.findOne({ username });
+  const isMatch = user ? await bcrypt.compare(password, user.password) : false;
+  if (!isMatch) {
+    throw new ApiError(401, 'Invalid credentials');
   }
-};
 
-export const logoutUser = async (req, res) => {
-  try {
-    req.user.tokenVersion += 1;
-    await req.user.save();
-    res.json({ message: 'Logged out' });
-  } catch (error) {
-    console.error('Logout error:', error);
-    res.status(500).json({
-      message: 'An error occurred while logging out. Please try again later.'
-    });
-  }
-};
+  res.json({
+    success: true,
+    _id: user._id,
+    name: user.name,
+    username: user.username,
+    email: user.email,
+    token: signToken(user)
+  });
+});
+
+export const logoutUser = asyncHandler(async (req, res) => {
+  req.user.tokenVersion += 1;
+  await req.user.save();
+  res.json({ message: 'Logged out' });
+});

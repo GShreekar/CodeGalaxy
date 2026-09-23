@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { submitContact } from '../features/contactSlice';
+import Alert from '../components/Alert';
 import './ContactPage.css';
 
 const ContactPage = () => {
@@ -25,7 +26,7 @@ const ContactPage = () => {
     } catch (error) {
       setStatus({
         type: 'error',
-        message: error.message || 'Failed to send message'
+        message: error || 'Failed to send message'
       });
     }
   };
@@ -37,9 +38,7 @@ const ContactPage = () => {
           <h2 className="text-center mb-4 neon-text">Contact Us</h2>
           
           {status.message && (
-            <div className={`alert ${status.type === 'success' ? 'alert-success' : 'alert-danger'} mb-4`}>
-              {status.message}
-            </div>
+            <Alert type={status.type === 'success' ? 'success' : 'danger'} message={status.message} className="mb-4" />
           )}
 
           <form onSubmit={handleSubmit}>

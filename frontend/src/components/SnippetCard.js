@@ -8,11 +8,36 @@ import SyntaxHighlighter from '../utils/syntaxHighlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { FaArrowUp, FaArrowDown, FaComment, FaCopy, FaCheck } from 'react-icons/fa';
 
+const copyToClipboard = async (text) => {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  // Clipboard API is unavailable on non-HTTPS origins — fall back to the
+  // classic hidden-textarea + execCommand trick
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  try {
+    document.execCommand('copy');
+  } finally {
+    document.body.removeChild(textarea);
+  }
+};
+
 const SnippetCard = ({ snippet }) => {
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector(state => state.auth);
+
+  const hasUpvoted = Boolean(snippet.upvoters?.includes(user?._id));
+  const hasDownvoted = Boolean(snippet.downvoters?.includes(user?._id));
 
   const handleUpvote = () => {
     if (!user) {
@@ -29,10 +54,16 @@ const SnippetCard = ({ snippet }) => {
     dispatch(downvoteSnippet(snippet._id));
   };
 
-  const copyCode = () => {
-    navigator.clipboard.writeText(snippet.code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copyCode = async () => {
+    try {
+      await copyToClipboard(snippet.code);
+      setCopied(true);
+      setCopyError(false);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      setCopyError(true);
+      setTimeout(() => setCopyError(false), 2000);
+    }
   };
 
   return (
@@ -50,7 +81,7 @@ const SnippetCard = ({ snippet }) => {
         <p className="card-text">{snippet.description}</p>
 
         <div className="code-block">
-          <SyntaxHighlighter 
+          <SyntaxHighlighter
             language={toPrismLanguage(snippet.language)}
             style={vscDarkPlus}
             customStyle={{
@@ -64,25 +95,29 @@ const SnippetCard = ({ snippet }) => {
 
         <div className="card-actions mt-3">
           <div className="vote-actions">
-            <button 
-              className={`btn btn-vote ${snippet.upvoters?.includes(user?._id) ? 'voted' : ''}`}
+            <button
+              className={`btn btn-vote ${hasUpvoted ? 'voted' : ''}`}
               onClick={handleUpvote}
               title="Upvote"
+              aria-label="Upvote"
+              aria-pressed={hasUpvoted}
             >
               <FaArrowUp />
               <span>{snippet.upvoters?.length || 0}</span>
             </button>
-            <button 
-              className={`btn btn-vote ${snippet.downvoters?.includes(user?._id) ? 'voted' : ''}`}
+            <button
+              className={`btn btn-vote ${hasDownvoted ? 'voted' : ''}`}
               onClick={handleDownvote}
               title="Downvote"
+              aria-label="Downvote"
+              aria-pressed={hasDownvoted}
             >
               <FaArrowDown />
               <span>{snippet.downvoters?.length || 0}</span>
             </button>
           </div>
 
-          <Link 
+          <Link
             to={`/snippet/${snippet._id}/comments`}
             className="btn btn-comment"
             title="View comments"
@@ -91,13 +126,14 @@ const SnippetCard = ({ snippet }) => {
             <span>Comments ({snippet.commentCount ?? snippet.comments?.length ?? 0})</span>
           </Link>
 
-          <button 
+          <button
             className="btn btn-copy"
             onClick={copyCode}
             title={copied ? 'Copied!' : 'Copy code'}
+            aria-label={copyError ? 'Failed to copy code' : (copied ? 'Copied to clipboard' : 'Copy code to clipboard')}
           >
             {copied ? <FaCheck /> : <FaCopy />}
-            <span>{copied ? 'Copied!' : 'Copy Code'}</span>
+            <span>{copyError ? 'Copy failed' : (copied ? 'Copied!' : 'Copy Code')}</span>
           </button>
         </div>
       </div>
