@@ -46,6 +46,14 @@
   margin-top: 1rem;
 }
 
+.delete-confirm {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  color: #fff;
+}
+
 .vote-actions {
   display: flex;
   gap: 0.5rem;

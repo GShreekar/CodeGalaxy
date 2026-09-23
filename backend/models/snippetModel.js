@@ -18,9 +18,17 @@ const commentSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const snippetSchema = new mongoose.Schema({
+  // denormalised display cache — the real relationship (and the only thing
+  // ownership checks trust) is authorId; kept in sync at write time
   author: {
     type: String,
     required: true
+  },
+  authorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    index: true
   },
   title: {
     type: String,
@@ -66,6 +74,15 @@ snippetSchema.index(
     language_override: 'textSearchLanguage'
   }
 );
+
+// keeps User.usersnippets in sync on delete without a multi-document transaction
+// (this deployment runs a standalone MongoDB, which transactions require a
+// replica set for); looked up lazily via mongoose.model() to avoid a circular
+// import with userModel.js
+snippetSchema.post('findOneAndDelete', async function (doc) {
+  if (!doc) return;
+  await mongoose.model('User').findByIdAndUpdate(doc.authorId, { $pull: { usersnippets: doc._id } });
+});
 
 const Snippet = mongoose.model('Snippet', snippetSchema);
 export default Snippet;

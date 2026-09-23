@@ -69,6 +69,7 @@ export const createSnippet = asyncHandler(async (req, res) => {
   const { title, description, language, code } = req.body;
   const snippet = await Snippet.create({
     author: req.user.username,
+    authorId: req.user._id,
     title,
     description,
     language,
@@ -81,6 +82,24 @@ export const createSnippet = asyncHandler(async (req, res) => {
   );
 
   res.status(201).json(snippet);
+});
+
+// ownership is already verified by the ownsSnippet middleware, which also
+// loaded the snippet once — no need to re-fetch or re-check here
+export const updateSnippet = asyncHandler(async (req, res) => {
+  const updated = await Snippet.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    { new: true, runValidators: true }
+  );
+  res.json(updated);
+});
+
+export const deleteSnippet = asyncHandler(async (req, res) => {
+  // triggers the post('findOneAndDelete') hook that pulls this snippet out
+  // of the owning User's usersnippets array
+  await Snippet.findOneAndDelete({ _id: req.params.id });
+  res.status(204).end();
 });
 
 // toggles the caller's membership in `field` (and clears it from `opposite`) in a single

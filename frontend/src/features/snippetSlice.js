@@ -25,6 +25,22 @@ export const createSnippet = createAsyncThunk(
   }
 );
 
+export const updateSnippet = createAsyncThunk(
+  'snippets/updateSnippet',
+  async ({ id, ...fields }) => {
+    const response = await api.patch(`/snippet/${id}`, fields);
+    return response.data;
+  }
+);
+
+export const deleteSnippet = createAsyncThunk(
+  'snippets/deleteSnippet',
+  async (id) => {
+    await api.delete(`/snippet/${id}`);
+    return id;
+  }
+);
+
 export const fetchSnippets = createAsyncThunk(
   'snippets/fetchSnippets',
   async ({ search = '', language = '', sort = '', author = '', excludeAuthor = '', page = 1, limit = '' } = {}) => {
@@ -139,6 +155,17 @@ const snippetSlice = createSlice({
       })
       .addCase(addComment.fulfilled, (state, action) => {
         replaceInItems(state, action.payload);
+      })
+      .addCase(updateSnippet.fulfilled, (state, action) => {
+        replaceInItems(state, action.payload);
+      })
+      .addCase(deleteSnippet.fulfilled, (state, action) => {
+        const deletedId = action.payload;
+        state.items = state.items.filter(s => s._id !== deletedId);
+        state.total = Math.max(0, state.total - 1);
+        if (state.currentSnippet?._id === deletedId) {
+          state.currentSnippet = null;
+        }
       })
       .addCase(createSnippet.pending, (state) => {
         state.loading = true;

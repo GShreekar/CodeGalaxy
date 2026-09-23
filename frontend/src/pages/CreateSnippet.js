@@ -2,28 +2,21 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createSnippet } from '../features/snippetSlice';
-import { LANGUAGES, toPrismLanguage } from '../utils/languages';
 import Alert from '../components/Alert';
+import SnippetForm from '../components/SnippetForm';
 import './CreateSnippet.css';
-import SyntaxHighlighter from '../utils/syntaxHighlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
+const EMPTY_SNIPPET = { title: '', description: '', language: '', code: '' };
 
 const CreateSnippet = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector(state => state.auth);
-
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    language: '',
-    code: ''
-  });
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (formData) => {
+    setSubmitting(true);
     try {
       await dispatch(createSnippet({
         ...formData,
@@ -32,6 +25,7 @@ const CreateSnippet = () => {
       navigate('/my-snippets');
     } catch (err) {
       setError(err?.message || 'Failed to create snippet. Please try again.');
+      setSubmitting(false);
     }
   };
 
@@ -45,76 +39,12 @@ const CreateSnippet = () => {
 
           {error && <Alert type="danger" message={error} className="mb-3" />}
 
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Title"
-                value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
-                required
-              />
-            </div>
-
-            <div className="mb-3">
-              <textarea
-                className="form-control"
-                placeholder="Description"
-                rows="3"
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                required
-              />
-            </div>
-
-            <div className="mb-3">
-              <select
-                className="form-select"
-                value={formData.language}
-                onChange={(e) => setFormData({...formData, language: e.target.value})}
-                required
-              >
-                <option value="">Select Language</option>
-                {LANGUAGES.map(lang => (
-                  <option key={lang} value={lang}>{lang}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <textarea
-                  className="form-control code-editor"
-                  placeholder="Paste your code here..."
-                  rows="10"
-                  value={formData.code}
-                  onChange={(e) => setFormData({...formData, code: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="col-md-6 mb-3">
-                <div className="preview-container">
-                  <h5 className="preview-title neon-text">Preview</h5>
-                  <SyntaxHighlighter
-                    language={toPrismLanguage(formData.language)}
-                    style={vscDarkPlus}
-                    customStyle={{
-                      margin: 0,
-                      borderRadius: '4px',
-                      minHeight: '223px'
-                    }}
-                  >
-                    {formData.code || '// Your code preview will appear here'}
-                  </SyntaxHighlighter>
-                </div>
-              </div>
-            </div>
-
-            <button type="submit" className="btn btn-create w-100">
-              Create Snippet
-            </button>
-          </form>
+          <SnippetForm
+            initialValues={EMPTY_SNIPPET}
+            onSubmit={handleSubmit}
+            submitLabel="Create Snippet"
+            submitting={submitting}
+          />
         </div>
       </div>
     </div>

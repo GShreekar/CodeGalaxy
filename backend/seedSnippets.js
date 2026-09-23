@@ -1,9 +1,28 @@
 // backend/seedSnippets.js
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import crypto from 'crypto';
 import Snippet from './models/snippetModel.js';
+import User from './models/userModel.js';
 
 dotenv.config();
+
+const SYSTEM_USERNAME = 'CodeGalaxy';
+
+// the seeded snippets need a real User behind "CodeGalaxy" now that authorId
+// is required — this account has no discoverable password, so it can't be
+// logged into (its randomly generated password is never stored anywhere)
+async function ensureSystemUser() {
+  const existing = await User.findOne({ username: SYSTEM_USERNAME });
+  if (existing) return existing;
+
+  return User.create({
+    name: SYSTEM_USERNAME,
+    username: SYSTEM_USERNAME,
+    email: 'codegalaxy@system.local',
+    password: crypto.randomBytes(32).toString('hex')
+  });
+}
 
 // Connect to the database
 mongoose.connect(process.env.MONGODB_URI, {
@@ -227,11 +246,15 @@ const defaultSnippets = [
 
 async function seedSnippets() {
   try {
+    const systemUser = await ensureSystemUser();
+
     // Clear existing CodeGalaxy snippets to avoid duplicates
     await Snippet.deleteMany({ author: 'CodeGalaxy' });
 
     // Insert default snippets
-    await Snippet.insertMany(defaultSnippets);
+    await Snippet.insertMany(
+      defaultSnippets.map((snippet) => ({ ...snippet, authorId: systemUser._id }))
+    );
     console.log('Default snippets added successfully');
     process.exit();
   } catch (error) {

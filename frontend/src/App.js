@@ -17,6 +17,7 @@ const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const MySnippetsPage = lazy(() => import('./pages/MySnippetsPage'));
 const CreateSnippet = lazy(() => import('./pages/CreateSnippet'));
+const EditSnippet = lazy(() => import('./pages/EditSnippet'));
 const CommentPage = lazy(() => import('./pages/CommentPage'));
 const SearchResultPage = lazy(() => import('./pages/SearchResultPage'));
 const LanguagePage = lazy(() => import('./pages/LanguagePage'));
@@ -62,6 +63,7 @@ function App() {
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/my-snippets" element={<MySnippetsPage />} />
                 <Route path="/create-snippet" element={<CreateSnippet />} />
+                <Route path="/snippet/:id/edit" element={<EditSnippet />} />
                 <Route path="/snippet/:id/comments" element={<CommentPage />} />
               </Route>
 
