@@ -18,18 +18,19 @@ const SnippetsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const sort = searchParams.get('sort') || 'newest';
   const language = searchParams.get('language') || '';
+  const tag = searchParams.get('tags') || '';
   const [searchQuery, setSearchQuery] = useState('');
   const dispatch = useDispatch();
   const { items, page, pages, loading } = useSelector(state => state.snippets);
 
   useEffect(() => {
-    dispatch(fetchSnippets({ search: searchQuery, sort, language, page: 1 }));
+    dispatch(fetchSnippets({ search: searchQuery, sort, language, tags: tag, page: 1 }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, sort, language]);
+  }, [dispatch, sort, language, tag]);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    dispatch(fetchSnippets({ search: query, sort, language, page: 1 }));
+    dispatch(fetchSnippets({ search: query, sort, language, tags: tag, page: 1 }));
   };
 
   const handleSortChange = (e) => {
@@ -52,8 +53,14 @@ const SnippetsPage = () => {
     setSearchParams(next);
   };
 
+  const clearTagFilter = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('tags');
+    setSearchParams(next);
+  };
+
   const handleLoadMore = () => {
-    dispatch(fetchSnippets({ search: searchQuery, sort, language, page: page + 1 }));
+    dispatch(fetchSnippets({ search: searchQuery, sort, language, tags: tag, page: page + 1 }));
   };
 
   if (loading && page === 1) return <Loader />;
@@ -64,6 +71,17 @@ const SnippetsPage = () => {
         <div className="search-container mb-4">
           <SearchBar onSearch={handleSearch} />
         </div>
+
+        {tag && (
+          <div className="mb-3">
+            <span className="tag-chip active-tag-filter">
+              #{tag}
+              <button type="button" className="tag-filter-clear" onClick={clearTagFilter} aria-label={`Clear ${tag} filter`}>
+                ×
+              </button>
+            </span>
+          </div>
+        )}
 
         <div className="filters-section mb-4">
           <div className="d-flex align-items-center gap-2 mb-3">
@@ -112,7 +130,7 @@ const SnippetsPage = () => {
             <div className="row g-4">
               {items.map(snippet => (
                 <div key={snippet._id} className="col-12 col-md-6 col-lg-4">
-                  <SnippetCard snippet={snippet} />
+                  <SnippetCard snippet={snippet} highlightQuery={searchQuery} />
                 </div>
               ))}
             </div>

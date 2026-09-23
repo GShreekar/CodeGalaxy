@@ -6,10 +6,14 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 // shared by CreateSnippet and EditSnippet — only what happens on submit differs
 const SnippetForm = ({ initialValues, onSubmit, submitLabel, submitting }) => {
   const [formData, setFormData] = useState(initialValues);
+  // tags are edited as a single comma-separated field and only split into an
+  // array at submit time — simpler than a dedicated tag-pill input widget
+  const [tagsInput, setTagsInput] = useState((initialValues.tags || []).join(', '));
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    const tags = tagsInput.split(',').map((tag) => tag.trim()).filter(Boolean).slice(0, 10);
+    onSubmit({ ...formData, tags });
   };
 
   return (
@@ -48,6 +52,17 @@ const SnippetForm = ({ initialValues, onSubmit, submitLabel, submitting }) => {
             <option key={lang} value={lang}>{lang}</option>
           ))}
         </select>
+      </div>
+
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Tags (comma-separated, e.g. react, async, regex)"
+          value={tagsInput}
+          onChange={(e) => setTagsInput(e.target.value)}
+          maxLength={300}
+        />
       </div>
 
       <div className="row">

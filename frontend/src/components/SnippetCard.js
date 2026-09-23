@@ -2,11 +2,16 @@ import { useState, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './styles.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { upvoteSnippet, downvoteSnippet, deleteSnippet } from '../features/snippetSlice';
+import { upvoteSnippet, downvoteSnippet, deleteSnippet, toggleBookmark } from '../features/snippetSlice';
+import { fetchCollections, createCollection, addSnippetToCollection, removeSnippetFromCollection } from '../features/collectionSlice';
 import { toPrismLanguage } from '../utils/languages';
+import { highlightMatch } from '../utils/highlightMatch';
 import SyntaxHighlighter from '../utils/syntaxHighlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { FaArrowUp, FaArrowDown, FaComment, FaCopy, FaCheck, FaPen, FaTrash } from 'react-icons/fa';
+import {
+  FaArrowUp, FaArrowDown, FaComment, FaCopy, FaCheck, FaPen, FaTrash,
+  FaBookmark, FaRegBookmark, FaFolderPlus, FaPlus
+} from 'react-icons/fa';
 
 const copyToClipboard = async (text) => {
   if (navigator.clipboard && window.isSecureContext) {
@@ -29,32 +34,59 @@ const copyToClipboard = async (text) => {
   }
 };
 
-const SnippetCard = ({ snippet }) => {
+const SnippetCard = ({ snippet, highlightQuery }) => {
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const [collectionPanelOpen, setCollectionPanelOpen] = useState(false);
+  const [newCollectionName, setNewCollectionName] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector(state => state.auth);
+  const { items: collections, loaded: collectionsLoaded } = useSelector(state => state.collections);
 
   const hasUpvoted = Boolean(snippet.upvoters?.includes(user?._id));
   const hasDownvoted = Boolean(snippet.downvoters?.includes(user?._id));
+  const hasBookmarked = Boolean(snippet.bookmarkedBy?.includes(user?._id));
   const isOwner = Boolean(user) && snippet.author === user.username;
 
-  const handleUpvote = () => {
+  const requireLogin = (action) => {
     if (!user) {
       navigate('/login');
       return;
     }
-    dispatch(upvoteSnippet(snippet._id));
+    action();
   };
-  const handleDownvote = () => {
-    if (!user) {
-      navigate('/login');
-      return;
+
+  const handleUpvote = () => requireLogin(() => dispatch(upvoteSnippet(snippet._id)));
+  const handleDownvote = () => requireLogin(() => dispatch(downvoteSnippet(snippet._id)));
+  const handleBookmark = () => requireLogin(() => dispatch(toggleBookmark(snippet._id)));
+
+  const handleToggleCollectionPanel = () => requireLogin(() => {
+    if (!collectionPanelOpen && !collectionsLoaded) {
+      dispatch(fetchCollections());
     }
-    dispatch(downvoteSnippet(snippet._id));
+    setCollectionPanelOpen((open) => !open);
+  });
+
+  const handleToggleInCollection = (collection) => {
+    const inCollection = collection.snippets
+      ? collection.snippets.some((s) => (s._id || s) === snippet._id)
+      : false;
+    if (inCollection) {
+      dispatch(removeSnippetFromCollection({ collectionId: collection._id, snippetId: snippet._id }));
+    } else {
+      dispatch(addSnippetToCollection({ collectionId: collection._id, snippetId: snippet._id }));
+    }
+  };
+
+  const handleCreateAndAdd = async (e) => {
+    e.preventDefault();
+    if (!newCollectionName.trim()) return;
+    const result = await dispatch(createCollection({ name: newCollectionName.trim() })).unwrap();
+    setNewCollectionName('');
+    dispatch(addSnippetToCollection({ collectionId: result._id, snippetId: snippet._id }));
   };
 
   const copyCode = async () => {
@@ -81,7 +113,7 @@ const SnippetCard = ({ snippet }) => {
   return (
     <div className="card snippet-card my-3">
       <div className="card-body">
-        <h5 className="card-title neon-text">{snippet.title}</h5>
+        <h5 className="card-title neon-text">{highlightMatch(snippet.title, highlightQuery)}</h5>
         <h6 className="card-subtitle mb-2 text-muted">
           by <Link to={`/user/${encodeURIComponent(snippet.author)}`} className="author-link">{snippet.author}</Link>
           {snippet.author !== "CodeGalaxy" && (
@@ -90,7 +122,17 @@ const SnippetCard = ({ snippet }) => {
             </span>
           )}
         </h6>
-        <p className="card-text">{snippet.description}</p>
+        <p className="card-text">{highlightMatch(snippet.description, highlightQuery)}</p>
+
+        {snippet.tags?.length > 0 && (
+          <div className="tag-chip-row">
+            {snippet.tags.map((tag) => (
+              <Link key={tag} to={`/snippets?tags=${encodeURIComponent(tag)}`} className="tag-chip">
+                #{tag}
+              </Link>
+            ))}
+          </div>
+        )}
 
         <div className="code-block">
           <SyntaxHighlighter
@@ -118,72 +160,138 @@ const SnippetCard = ({ snippet }) => {
             </button>
           </div>
         ) : (
-          <div className="card-actions mt-3">
-            <div className="vote-actions">
-              <button
-                className={`btn btn-vote ${hasUpvoted ? 'voted' : ''}`}
-                onClick={handleUpvote}
-                title="Upvote"
-                aria-label="Upvote"
-                aria-pressed={hasUpvoted}
+          <>
+            <div className="card-actions mt-3">
+              <div className="vote-actions">
+                <button
+                  className={`btn btn-vote ${hasUpvoted ? 'voted' : ''}`}
+                  onClick={handleUpvote}
+                  title="Upvote"
+                  aria-label="Upvote"
+                  aria-pressed={hasUpvoted}
+                >
+                  <FaArrowUp />
+                  <span>{snippet.upvoters?.length || 0}</span>
+                </button>
+                <button
+                  className={`btn btn-vote ${hasDownvoted ? 'voted' : ''}`}
+                  onClick={handleDownvote}
+                  title="Downvote"
+                  aria-label="Downvote"
+                  aria-pressed={hasDownvoted}
+                >
+                  <FaArrowDown />
+                  <span>{snippet.downvoters?.length || 0}</span>
+                </button>
+              </div>
+
+              <Link
+                to={`/snippet/${snippet._id}`}
+                className="btn btn-comment"
+                title="View comments"
               >
-                <FaArrowUp />
-                <span>{snippet.upvoters?.length || 0}</span>
-              </button>
+                <FaComment />
+                <span>Comments ({snippet.commentCount ?? snippet.comments?.length ?? 0})</span>
+              </Link>
+
               <button
-                className={`btn btn-vote ${hasDownvoted ? 'voted' : ''}`}
-                onClick={handleDownvote}
-                title="Downvote"
-                aria-label="Downvote"
-                aria-pressed={hasDownvoted}
+                className="btn btn-copy"
+                onClick={copyCode}
+                title={copied ? 'Copied!' : 'Copy code'}
+                aria-label={copyError ? 'Failed to copy code' : (copied ? 'Copied to clipboard' : 'Copy code to clipboard')}
               >
-                <FaArrowDown />
-                <span>{snippet.downvoters?.length || 0}</span>
+                {copied ? <FaCheck /> : <FaCopy />}
+                <span>{copyError ? 'Copy failed' : (copied ? 'Copied!' : 'Copy Code')}</span>
               </button>
+
+              <button
+                className={`btn btn-copy ${hasBookmarked ? 'voted' : ''}`}
+                onClick={handleBookmark}
+                title={hasBookmarked ? 'Remove bookmark' : 'Bookmark'}
+                aria-label={hasBookmarked ? 'Remove bookmark' : 'Bookmark this snippet'}
+                aria-pressed={hasBookmarked}
+              >
+                {hasBookmarked ? <FaBookmark /> : <FaRegBookmark />}
+                <span>{hasBookmarked ? 'Bookmarked' : 'Bookmark'}</span>
+              </button>
+
+              <button
+                className="btn btn-copy"
+                onClick={handleToggleCollectionPanel}
+                title="Add to collection"
+                aria-label="Add to collection"
+                aria-expanded={collectionPanelOpen}
+              >
+                <FaFolderPlus />
+                <span>Collections</span>
+              </button>
+
+              {isOwner && (
+                <>
+                  <Link
+                    to={`/snippet/${snippet._id}/edit`}
+                    className="btn btn-copy"
+                    title="Edit snippet"
+                    aria-label="Edit snippet"
+                  >
+                    <FaPen />
+                    <span>Edit</span>
+                  </Link>
+                  <button
+                    className="btn btn-copy"
+                    onClick={() => setConfirmingDelete(true)}
+                    title="Delete snippet"
+                    aria-label="Delete snippet"
+                  >
+                    <FaTrash />
+                    <span>Delete</span>
+                  </button>
+                </>
+              )}
             </div>
 
-            <Link
-              to={`/snippet/${snippet._id}/comments`}
-              className="btn btn-comment"
-              title="View comments"
-            >
-              <FaComment />
-              <span>Comments ({snippet.commentCount ?? snippet.comments?.length ?? 0})</span>
-            </Link>
-
-            <button
-              className="btn btn-copy"
-              onClick={copyCode}
-              title={copied ? 'Copied!' : 'Copy code'}
-              aria-label={copyError ? 'Failed to copy code' : (copied ? 'Copied to clipboard' : 'Copy code to clipboard')}
-            >
-              {copied ? <FaCheck /> : <FaCopy />}
-              <span>{copyError ? 'Copy failed' : (copied ? 'Copied!' : 'Copy Code')}</span>
-            </button>
-
-            {isOwner && (
-              <>
-                <Link
-                  to={`/snippet/${snippet._id}/edit`}
-                  className="btn btn-copy"
-                  title="Edit snippet"
-                  aria-label="Edit snippet"
-                >
-                  <FaPen />
-                  <span>Edit</span>
-                </Link>
-                <button
-                  className="btn btn-copy"
-                  onClick={() => setConfirmingDelete(true)}
-                  title="Delete snippet"
-                  aria-label="Delete snippet"
-                >
-                  <FaTrash />
-                  <span>Delete</span>
-                </button>
-              </>
+            {collectionPanelOpen && (
+              <div className="collection-panel mt-2">
+                {collections.length === 0 ? (
+                  <p className="small text-muted mb-2">You don't have any collections yet.</p>
+                ) : (
+                  <ul className="collection-panel-list">
+                    {collections.map((collection) => {
+                      const inCollection = collection.snippets
+                        ? collection.snippets.some((s) => (s._id || s) === snippet._id)
+                        : false;
+                      return (
+                        <li key={collection._id}>
+                          <button
+                            type="button"
+                            className={`collection-panel-item ${inCollection ? 'in-collection' : ''}`}
+                            onClick={() => handleToggleInCollection(collection)}
+                            aria-pressed={inCollection}
+                          >
+                            {inCollection && <FaCheck className="me-2" />}
+                            {collection.name}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                <form onSubmit={handleCreateAndAdd} className="collection-panel-new">
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    placeholder="New collection name"
+                    value={newCollectionName}
+                    onChange={(e) => setNewCollectionName(e.target.value)}
+                    maxLength={100}
+                  />
+                  <button type="submit" className="btn btn-sm btn-copy" disabled={!newCollectionName.trim()}>
+                    <FaPlus />
+                  </button>
+                </form>
+              </div>
             )}
-          </div>
+          </>
         )}
       </div>
     </div>

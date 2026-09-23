@@ -49,7 +49,7 @@ const SearchResultPage = () => {
             <div className="row g-4">
               {items.map(snippet => (
                 <div key={snippet._id} className="col-12 col-md-6 col-lg-4">
-                  <SnippetCard snippet={snippet} />
+                  <SnippetCard snippet={snippet} highlightQuery={searchQuery} />
                 </div>
               ))}
             </div>

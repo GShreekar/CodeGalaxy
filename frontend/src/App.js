@@ -16,9 +16,12 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const MySnippetsPage = lazy(() => import('./pages/MySnippetsPage'));
+const MyBookmarksPage = lazy(() => import('./pages/MyBookmarksPage'));
+const CollectionsPage = lazy(() => import('./pages/CollectionsPage'));
+const CollectionDetailPage = lazy(() => import('./pages/CollectionDetailPage'));
 const CreateSnippet = lazy(() => import('./pages/CreateSnippet'));
 const EditSnippet = lazy(() => import('./pages/EditSnippet'));
-const CommentPage = lazy(() => import('./pages/CommentPage'));
+const SnippetDetailPage = lazy(() => import('./pages/SnippetDetailPage'));
 const SearchResultPage = lazy(() => import('./pages/SearchResultPage'));
 const LanguagePage = lazy(() => import('./pages/LanguagePage'));
 const UserSnippetsPage = lazy(() => import('./pages/UserSnippetsPage'));
@@ -60,13 +63,17 @@ function App() {
               <Route path="/language/:language" element={<LanguagePage />} />
               <Route path="/community" element={<UserSnippetsPage />} />
               <Route path="/user/:username" element={<UserProfilePage />} />
+              {/* public: reading a snippet and its comments needs no login — only posting one does */}
+              <Route path="/snippet/:id" element={<SnippetDetailPage />} />
 
               <Route element={<PrivateRoute />}>
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/my-snippets" element={<MySnippetsPage />} />
+                <Route path="/bookmarks" element={<MyBookmarksPage />} />
+                <Route path="/collections" element={<CollectionsPage />} />
+                <Route path="/collections/:id" element={<CollectionDetailPage />} />
                 <Route path="/create-snippet" element={<CreateSnippet />} />
                 <Route path="/snippet/:id/edit" element={<EditSnippet />} />
-                <Route path="/snippet/:id/comments" element={<CommentPage />} />
               </Route>
 
               <Route path="*" element={<NotFoundPage />} />

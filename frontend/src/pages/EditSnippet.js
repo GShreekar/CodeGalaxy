@@ -64,7 +64,8 @@ const EditSnippet = () => {
               title: currentSnippet.title,
               description: currentSnippet.description,
               language: currentSnippet.language,
-              code: currentSnippet.code
+              code: currentSnippet.code,
+              tags: currentSnippet.tags
             }}
             onSubmit={handleSubmit}
             submitLabel="Save Changes"

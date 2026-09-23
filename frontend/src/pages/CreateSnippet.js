@@ -6,7 +6,7 @@ import Alert from '../components/Alert';
 import SnippetForm from '../components/SnippetForm';
 import './CreateSnippet.css';
 
-const EMPTY_SNIPPET = { title: '', description: '', language: '', code: '' };
+const EMPTY_SNIPPET = { title: '', description: '', language: '', code: '', tags: [] };
 
 const CreateSnippet = () => {
   const dispatch = useDispatch();

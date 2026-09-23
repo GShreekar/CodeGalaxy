@@ -3,6 +3,7 @@ import authReducer from '../features/authSlice';
 import snippetReducer from '../features/snippetSlice';
 import contactReducer from '../features/contactSlice';
 import userProfileReducer from '../features/userProfileSlice';
+import collectionReducer from '../features/collectionSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     snippets: snippetReducer,
     contact: contactReducer,
     userProfile: userProfileReducer,
+    collections: collectionReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

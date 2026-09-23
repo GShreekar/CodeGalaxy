@@ -43,13 +43,14 @@ export const deleteSnippet = createAsyncThunk(
 
 export const fetchSnippets = createAsyncThunk(
   'snippets/fetchSnippets',
-  async ({ search = '', language = '', sort = '', author = '', excludeAuthor = '', page = 1, limit = '' } = {}) => {
+  async ({ search = '', language = '', sort = '', author = '', excludeAuthor = '', tags = '', page = 1, limit = '' } = {}) => {
     const params = new URLSearchParams();
     if (search) params.append('search', search);
     if (language) params.append('language', language);
     if (sort) params.append('sort', sort);
     if (author) params.append('author', author);
     if (excludeAuthor) params.append('excludeAuthor', excludeAuthor);
+    if (tags) params.append('tags', tags);
     if (limit) params.append('limit', limit);
     params.append('page', page);
 
@@ -106,6 +107,25 @@ export const downvoteSnippet = createAsyncThunk(
   'snippets/downvoteSnippet',
   async (snippetId) => {
     const response = await api.post(`/snippet/${snippetId}/downvote`);
+    return response.data;
+  }
+);
+
+export const toggleBookmark = createAsyncThunk(
+  'snippets/toggleBookmark',
+  async (snippetId) => {
+    const response = await api.post(`/snippet/${snippetId}/bookmark`);
+    return response.data;
+  }
+);
+
+export const fetchUserBookmarks = createAsyncThunk(
+  'snippets/fetchUserBookmarks',
+  async ({ page = 1 } = {}) => {
+    const params = new URLSearchParams();
+    params.append('page', page);
+
+    const response = await api.get(`/user/bookmarks?${params}`);
     return response.data;
   }
 );
@@ -222,6 +242,18 @@ const snippetSlice = createSlice({
       .addCase(fetchUserSnippets.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(fetchUserBookmarks.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUserBookmarks.fulfilled, applySnippetsPage)
+      .addCase(fetchUserBookmarks.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(toggleBookmark.fulfilled, (state, action) => {
+        replaceInItems(state, action.payload);
       })
       .addCase(fetchTrendingSnippets.fulfilled, (state, action) => {
         state.trending = action.payload;

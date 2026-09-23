@@ -55,15 +55,28 @@ const snippetSchema = new mongoose.Schema({
   // rather than stored as a separate counter, so it can never drift out of sync
   upvoters: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   downvoters: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  // symmetric with upvoters/downvoters: "who bookmarked this", toggled the
+  // same atomic way, so "my bookmarks" is just another listSnippets filter
+  bookmarkedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   comments: [commentSchema],
   // kept in sync atomically with comments so list views can show a count
   // without shipping the whole comments array over the wire
-  commentCount: { type: Number, default: 0 }
+  commentCount: { type: Number, default: 0 },
+  tags: {
+    type: [{ type: String, trim: true, lowercase: true, maxlength: 30 }],
+    default: [],
+    validate: {
+      validator: (arr) => arr.length <= 10,
+      message: 'A snippet can have at most 10 tags'
+    }
+  }
 }, { timestamps: true });
 
 snippetSchema.index({ createdAt: -1 });
 snippetSchema.index({ language: 1, createdAt: -1 });
 snippetSchema.index({ author: 1, createdAt: -1 });
+snippetSchema.index({ tags: 1 });
+snippetSchema.index({ bookmarkedBy: 1 });
 snippetSchema.index(
   { title: 'text', description: 'text', code: 'text' },
   {
@@ -75,13 +88,16 @@ snippetSchema.index(
   }
 );
 
-// keeps User.usersnippets in sync on delete without a multi-document transaction
-// (this deployment runs a standalone MongoDB, which transactions require a
-// replica set for); looked up lazily via mongoose.model() to avoid a circular
-// import with userModel.js
+// keeps User.usersnippets and any Collection referencing this snippet in sync
+// on delete, without a multi-document transaction (this deployment runs a
+// standalone MongoDB, which transactions require a replica set for); models
+// are looked up lazily via mongoose.model() to avoid circular imports
 snippetSchema.post('findOneAndDelete', async function (doc) {
   if (!doc) return;
-  await mongoose.model('User').findByIdAndUpdate(doc.authorId, { $pull: { usersnippets: doc._id } });
+  await Promise.all([
+    mongoose.model('User').findByIdAndUpdate(doc.authorId, { $pull: { usersnippets: doc._id } }),
+    mongoose.model('Collection').updateMany({ snippets: doc._id }, { $pull: { snippets: doc._id } })
+  ]);
 });
 
 const Snippet = mongoose.model('Snippet', snippetSchema);

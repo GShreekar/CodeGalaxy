@@ -1,4 +1,4 @@
-import { Snippet } from '../models/index.js';
+import { Snippet, Collection } from '../models/index.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
 
 // loads the snippet once and verifies the authenticated user owns it, so
@@ -16,5 +16,19 @@ export const ownsSnippet = asyncHandler(async (req, res, next) => {
     throw new ApiError(403, 'Not your snippet');
   }
   req.snippet = snippet;
+  next();
+});
+
+// collections are always private to their owner — this gates every read,
+// not just writes
+export const ownsCollection = asyncHandler(async (req, res, next) => {
+  const collection = await Collection.findById(req.params.id).select('owner');
+  if (!collection) {
+    throw new ApiError(404, 'Collection not found');
+  }
+  if (!collection.owner.equals(req.user._id)) {
+    throw new ApiError(403, 'Not your collection');
+  }
+  req.collection = collection;
   next();
 });

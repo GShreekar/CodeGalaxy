@@ -2,9 +2,7 @@ import { Snippet, User } from '../models/index.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
 import { listSnippets } from '../services/snippetService.js';
 
-const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-const buildSnippetFilter = ({ language, search, author, excludeAuthor }) => {
+const buildSnippetFilter = ({ language, search, author, excludeAuthor, tags }) => {
   const filter = {};
 
   if (language) {
@@ -17,23 +15,33 @@ const buildSnippetFilter = ({ language, search, author, excludeAuthor }) => {
     filter.author = { $ne: excludeAuthor };
   }
 
+  if (tags) {
+    const tagList = String(tags)
+      .split(',')
+      .map((tag) => tag.trim().toLowerCase())
+      .filter(Boolean)
+      .slice(0, 10);
+    if (tagList.length) {
+      filter.tags = { $in: tagList };
+    }
+  }
+
+  // uses the weighted text index (title, description, code) instead of a
+  // regex scan — matches code bodies, does stemming, and needs no escaping
+  // since it isn't user-supplied regex
   if (search) {
-    const safeSearch = escapeRegex(String(search).slice(0, 100));
-    filter.$or = [
-      { title: { $regex: safeSearch, $options: 'i' } },
-      { description: { $regex: safeSearch, $options: 'i' } }
-    ];
+    filter.$text = { $search: String(search).slice(0, 100) };
   }
 
   return filter;
 };
 
 export const getSnippets = asyncHandler(async (req, res) => {
-  const { language, sort, search, author, excludeAuthor } = req.query;
+  const { language, sort, search, author, excludeAuthor, tags } = req.query;
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
   const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
 
-  const filter = buildSnippetFilter({ language, search, author, excludeAuthor });
+  const filter = buildSnippetFilter({ language, search, author, excludeAuthor, tags });
   res.json(await listSnippets({ filter, sort, page, limit }));
 });
 
@@ -46,14 +54,15 @@ export const getSnippetById = asyncHandler(async (req, res) => {
 });
 
 export const createSnippet = asyncHandler(async (req, res) => {
-  const { title, description, language, code } = req.body;
+  const { title, description, language, code, tags } = req.body;
   const snippet = await Snippet.create({
     author: req.user.username,
     authorId: req.user._id,
     title,
     description,
     language,
-    code
+    code,
+    tags
   });
 
   await User.findByIdAndUpdate(
@@ -82,28 +91,28 @@ export const deleteSnippet = asyncHandler(async (req, res) => {
   res.status(204).end();
 });
 
-// toggles the caller's membership in `field` (and clears it from `opposite`) in a single
-// atomic pipeline update, so concurrent votes from different users can never clobber
-// each other the way a read-modify-save cycle would
-const castVote = (field, opposite) => asyncHandler(async (req, res) => {
+// toggles the caller's membership in `field` (clearing `opposite`, if given) in a single
+// atomic pipeline update, so concurrent votes/bookmarks from different users can never
+// clobber each other the way a read-modify-save cycle would
+const toggleArrayField = (field, opposite) => asyncHandler(async (req, res) => {
   const userId = req.user._id;
+
+  const setStage = {
+    [field]: {
+      $cond: [
+        { $in: [userId, `$${field}`] },
+        { $filter: { input: `$${field}`, cond: { $ne: ['$$this', userId] } } },
+        { $concatArrays: [`$${field}`, [userId]] }
+      ]
+    }
+  };
+  if (opposite) {
+    setStage[opposite] = { $filter: { input: `$${opposite}`, cond: { $ne: ['$$this', userId] } } };
+  }
 
   const updated = await Snippet.findByIdAndUpdate(
     req.params.id,
-    [
-      { $set: {
-          [field]: {
-            $cond: [
-              { $in: [userId, `$${field}`] },
-              { $filter: { input: `$${field}`, cond: { $ne: ['$$this', userId] } } },
-              { $concatArrays: [`$${field}`, [userId]] }
-            ]
-          },
-          [opposite]: {
-            $filter: { input: `$${opposite}`, cond: { $ne: ['$$this', userId] } }
-          }
-        } }
-    ],
+    [{ $set: setStage }],
     { new: true }
   ).select('-comments');
 
@@ -114,8 +123,9 @@ const castVote = (field, opposite) => asyncHandler(async (req, res) => {
   res.json(updated);
 });
 
-export const upvoteSnippet = castVote('upvoters', 'downvoters');
-export const downvoteSnippet = castVote('downvoters', 'upvoters');
+export const upvoteSnippet = toggleArrayField('upvoters', 'downvoters');
+export const downvoteSnippet = toggleArrayField('downvoters', 'upvoters');
+export const toggleBookmark = toggleArrayField('bookmarkedBy');
 
 export const addComment = asyncHandler(async (req, res) => {
   const comment = {

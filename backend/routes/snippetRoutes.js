@@ -11,6 +11,7 @@ import {
   deleteSnippet,
   upvoteSnippet,
   downvoteSnippet,
+  toggleBookmark,
   addComment,
   getSnippetAuthors,
   getTrendingSnippets,
@@ -32,6 +33,7 @@ router.patch('/:id', protect, validate(updateSnippetSchema), ownsSnippet, update
 router.delete('/:id', protect, ownsSnippet, deleteSnippet);
 router.post('/:id/upvote', protect, upvoteSnippet);
 router.post('/:id/downvote', protect, downvoteSnippet);
+router.post('/:id/bookmark', protect, toggleBookmark);
 router.post('/:id/comment', protect, validate(addCommentSchema), addComment);
 
 export default router;
