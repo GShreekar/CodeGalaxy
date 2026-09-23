@@ -22,3 +22,16 @@ export const toPrismLanguage = (language) => {
   if (!language) return 'text';
   return PRISM_ALIASES[language] || language.toLowerCase();
 };
+
+// conventional file extension for each language, used when downloading a
+// snippet as a file
+const FILE_EXTENSIONS = {
+  'Bash': 'sh', 'C': 'c', 'C#': 'cs', 'C++': 'cpp', 'CSS': 'css', 'Dart': 'dart',
+  'Elixir': 'ex', 'Go': 'go', 'Haskell': 'hs', 'HTML': 'html', 'Java': 'java',
+  'JavaScript': 'js', 'JSON': 'json', 'Kotlin': 'kt', 'Lua': 'lua', 'Markdown': 'md',
+  'Objective-C': 'm', 'Perl': 'pl', 'PHP': 'php', 'PowerShell': 'ps1', 'Python': 'py',
+  'R': 'r', 'Ruby': 'rb', 'Rust': 'rs', 'Scala': 'scala', 'SQL': 'sql', 'Swift': 'swift',
+  'Text': 'txt', 'TypeScript': 'ts', 'YAML': 'yaml'
+};
+
+export const toFileExtension = (language) => FILE_EXTENSIONS[language] || 'txt';

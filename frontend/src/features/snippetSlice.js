@@ -17,10 +17,45 @@ export const addComment = createAsyncThunk(
   }
 );
 
+export const fetchSnippetComments = createAsyncThunk(
+  'snippets/fetchSnippetComments',
+  async ({ snippetId, page = 1 }) => {
+    const params = new URLSearchParams();
+    params.append('page', page);
+
+    const response = await api.get(`/snippet/${snippetId}/comments?${params}`);
+    return { snippetId, ...response.data };
+  }
+);
+
+export const updateComment = createAsyncThunk(
+  'snippets/updateComment',
+  async ({ snippetId, commentId, text }) => {
+    const response = await api.patch(`/snippet/${snippetId}/comment/${commentId}`, { text });
+    return response.data;
+  }
+);
+
+export const deleteComment = createAsyncThunk(
+  'snippets/deleteComment',
+  async ({ snippetId, commentId }) => {
+    await api.delete(`/snippet/${snippetId}/comment/${commentId}`);
+    return { snippetId, commentId };
+  }
+);
+
 export const createSnippet = createAsyncThunk(
   'snippets/createSnippet',
   async (snippetData) => {
     const response = await api.post('/snippet', snippetData);
+    return response.data;
+  }
+);
+
+export const forkSnippet = createAsyncThunk(
+  'snippets/forkSnippet',
+  async (snippetId) => {
+    const response = await api.post(`/snippet/${snippetId}/fork`);
     return response.data;
   }
 );
@@ -148,8 +183,6 @@ const replaceInItems = (state, snippet) => {
   }
 };
 
-// shared by fetchSnippets and fetchUserSnippets — both return the same
-// { items, page, limit, total, pages } shape from the same backend service
 const applySnippetsPage = (state, action) => {
   state.loading = false;
   const { items, page, limit, total, pages } = action.payload;
@@ -173,6 +206,16 @@ const snippetSlice = createSlice({
     authors: [],
     currentSnippet: null,
     languageStats: [],
+    comments: {
+      snippetId: null,
+      items: [],
+      page: 1,
+      limit: 20,
+      total: 0,
+      pages: 1,
+      loading: false,
+      error: null
+    },
     loading: false,
     error: null
   },
@@ -182,6 +225,11 @@ const snippetSlice = createSlice({
     },
     clearCurrentSnippet: (state) => {
       state.currentSnippet = null;
+    },
+    clearComments: (state) => {
+      state.comments = {
+        snippetId: null, items: [], page: 1, limit: 20, total: 0, pages: 1, loading: false, error: null
+      };
     }
   },
   extraReducers: (builder) => {
@@ -199,7 +247,48 @@ const snippetSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(addComment.fulfilled, (state, action) => {
-        replaceInItems(state, action.payload);
+        const { comments, ...snippetWithoutComments } = action.payload;
+        const newComment = comments?.at(-1);
+        if (newComment && state.comments.snippetId === action.meta.arg.snippetId) {
+          state.comments.items.push(newComment);
+          state.comments.total += 1;
+          state.comments.pages = Math.ceil(state.comments.total / state.comments.limit) || 1;
+        }
+        if (state.currentSnippet?._id === snippetWithoutComments._id) {
+          state.currentSnippet = { ...state.currentSnippet, ...snippetWithoutComments };
+        }
+      })
+      .addCase(fetchSnippetComments.pending, (state) => {
+        state.comments.loading = true;
+        state.comments.error = null;
+      })
+      .addCase(fetchSnippetComments.fulfilled, (state, action) => {
+        const { snippetId, items, page, limit, total, pages } = action.payload;
+        state.comments.loading = false;
+        state.comments.snippetId = snippetId;
+        state.comments.items = page > 1 ? [...state.comments.items, ...items] : items;
+        state.comments.page = page;
+        state.comments.limit = limit;
+        state.comments.total = total;
+        state.comments.pages = pages;
+      })
+      .addCase(fetchSnippetComments.rejected, (state, action) => {
+        state.comments.loading = false;
+        state.comments.error = action.error.message;
+      })
+      .addCase(updateComment.fulfilled, (state, action) => {
+        const index = state.comments.items.findIndex((c) => c._id === action.payload._id);
+        if (index !== -1) {
+          state.comments.items[index] = action.payload;
+        }
+      })
+      .addCase(deleteComment.fulfilled, (state, action) => {
+        const { snippetId, commentId } = action.payload;
+        state.comments.items = state.comments.items.filter((c) => c._id !== commentId);
+        state.comments.total = Math.max(0, state.comments.total - 1);
+        if (state.currentSnippet?._id === snippetId) {
+          state.currentSnippet.commentCount = Math.max(0, (state.currentSnippet.commentCount || 0) - 1);
+        }
       })
       .addCase(updateSnippet.fulfilled, (state, action) => {
         replaceInItems(state, action.payload);
@@ -224,6 +313,10 @@ const snippetSlice = createSlice({
       .addCase(createSnippet.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(forkSnippet.fulfilled, (state, action) => {
+        state.items.unshift(action.payload);
+        state.total += 1;
       })
       .addCase(fetchSnippets.pending, (state) => {
         state.loading = true;
@@ -273,5 +366,5 @@ const snippetSlice = createSlice({
   }
 });
 
-export const { clearError, clearCurrentSnippet } = snippetSlice.actions;
+export const { clearError, clearCurrentSnippet, clearComments } = snippetSlice.actions;
 export default snippetSlice.reducer;

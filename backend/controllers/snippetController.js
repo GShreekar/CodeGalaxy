@@ -1,6 +1,6 @@
 import { Snippet, User } from '../models/index.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
-import { listSnippets } from '../services/snippetService.js';
+import { listSnippets, FORK_ATTRIBUTION_STAGES } from '../services/snippetService.js';
 
 const buildSnippetFilter = ({ language, search, author, excludeAuthor, tags }) => {
   const filter = {};
@@ -26,9 +26,6 @@ const buildSnippetFilter = ({ language, search, author, excludeAuthor, tags }) =
     }
   }
 
-  // uses the weighted text index (title, description, code) instead of a
-  // regex scan — matches code bodies, does stemming, and needs no escaping
-  // since it isn't user-supplied regex
   if (search) {
     filter.$text = { $search: String(search).slice(0, 100) };
   }
@@ -46,11 +43,22 @@ export const getSnippets = asyncHandler(async (req, res) => {
 });
 
 export const getSnippetById = asyncHandler(async (req, res) => {
-  const snippet = await Snippet.findById(req.params.id);
+  // comments are fetched separately (paginated) via getSnippetComments now
+  const snippet = await Snippet.findById(req.params.id)
+    .select('-comments')
+    .populate({ path: 'forkedFrom', select: 'title author' });
   if (!snippet) {
     throw new ApiError(404, 'Snippet not found');
   }
   res.json(snippet);
+});
+
+export const getRawSnippet = asyncHandler(async (req, res) => {
+  const snippet = await Snippet.findById(req.params.id).select('code');
+  if (!snippet) {
+    throw new ApiError(404, 'Snippet not found');
+  }
+  res.type('text/plain').send(snippet.code);
 });
 
 export const createSnippet = asyncHandler(async (req, res) => {
@@ -73,8 +81,33 @@ export const createSnippet = asyncHandler(async (req, res) => {
   res.status(201).json(snippet);
 });
 
-// ownership is already verified by the ownsSnippet middleware, which also
-// loaded the snippet once — no need to re-fetch or re-check here
+export const forkSnippet = asyncHandler(async (req, res) => {
+  const source = await Snippet.findById(req.params.id)
+    .select('title description language code tags');
+  if (!source) {
+    throw new ApiError(404, 'Snippet not found');
+  }
+
+  const fork = await Snippet.create({
+    author: req.user.username,
+    authorId: req.user._id,
+    title: source.title,
+    description: source.description,
+    language: source.language,
+    code: source.code,
+    tags: source.tags,
+    forkedFrom: source._id
+  });
+
+  await User.findByIdAndUpdate(
+    req.user._id,
+    { $push: { usersnippets: fork._id } }
+  );
+
+  const populated = await Snippet.findById(fork._id).populate({ path: 'forkedFrom', select: 'title author' });
+  res.status(201).json(populated);
+});
+
 export const updateSnippet = asyncHandler(async (req, res) => {
   const updated = await Snippet.findByIdAndUpdate(
     req.params.id,
@@ -85,15 +118,10 @@ export const updateSnippet = asyncHandler(async (req, res) => {
 });
 
 export const deleteSnippet = asyncHandler(async (req, res) => {
-  // triggers the post('findOneAndDelete') hook that pulls this snippet out
-  // of the owning User's usersnippets array
   await Snippet.findOneAndDelete({ _id: req.params.id });
   res.status(204).end();
 });
 
-// toggles the caller's membership in `field` (clearing `opposite`, if given) in a single
-// atomic pipeline update, so concurrent votes/bookmarks from different users can never
-// clobber each other the way a read-modify-save cycle would
 const toggleArrayField = (field, opposite) => asyncHandler(async (req, res) => {
   const userId = req.user._id;
 
@@ -147,6 +175,40 @@ export const addComment = asyncHandler(async (req, res) => {
   res.status(201).json(snippet);
 });
 
+export const getSnippetComments = asyncHandler(async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
+  const skip = (page - 1) * limit;
+
+  const snippet = await Snippet.findById(req.params.id)
+    .select({ comments: { $slice: [skip, limit] }, commentCount: 1 });
+
+  if (!snippet) {
+    throw new ApiError(404, 'Snippet not found');
+  }
+
+  const total = snippet.commentCount;
+  res.json({ items: snippet.comments, page, limit, total, pages: Math.ceil(total / limit) || 1 });
+});
+
+export const updateComment = asyncHandler(async (req, res) => {
+  const updated = await Snippet.findOneAndUpdate(
+    { _id: req.params.id, 'comments._id': req.params.commentId },
+    { $set: { 'comments.$.text': req.body.text, 'comments.$.updatedAt': new Date() } },
+    { new: true, runValidators: true }
+  ).select('comments');
+
+  res.json(updated.comments.id(req.params.commentId));
+});
+
+export const deleteComment = asyncHandler(async (req, res) => {
+  await Snippet.findByIdAndUpdate(
+    req.params.id,
+    { $pull: { comments: { _id: req.params.commentId } }, $inc: { commentCount: -1 } }
+  );
+  res.status(204).end();
+});
+
 export const getSnippetAuthors = asyncHandler(async (req, res) => {
   const authors = await Snippet.distinct('author', { author: { $ne: 'CodeGalaxy' } });
   res.json(authors.sort());
@@ -172,6 +234,7 @@ export const getTrendingSnippets = asyncHandler(async (req, res) => {
     } },
     { $sort: { hotness: -1 } },
     { $limit: limit },
+    ...FORK_ATTRIBUTION_STAGES,
     { $project: { comments: 0 } }
   ]);
 

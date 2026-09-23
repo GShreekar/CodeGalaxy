@@ -83,6 +83,43 @@
 
 .comment-body {
   color: rgba(255, 255, 255, 0.9);
+  white-space: pre-wrap;
+}
+
+.comment-edited {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
+  font-weight: normal;
+}
+
+.comment-actions,
+.comment-edit-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.comment-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #666;
+  background: transparent;
+  color: #ccc;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.comment-action-btn:hover {
+  border-color: var(--neon-primary);
+  color: var(--neon-primary);
+}
+
+.comment-edit-form textarea {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--neon-primary);
+  color: white;
 }
 
 @keyframes slideIn {

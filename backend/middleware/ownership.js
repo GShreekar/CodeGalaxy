@@ -32,3 +32,28 @@ export const ownsCollection = asyncHandler(async (req, res, next) => {
   req.collection = collection;
   next();
 });
+
+// editing your own words is different from moderating someone else's: only
+// the comment's author may edit it, but the snippet owner can additionally
+// delete any comment on their own snippet (allowSnippetOwner: true)
+export const canModifyComment = (allowSnippetOwner) => asyncHandler(async (req, res, next) => {
+  const snippet = await Snippet.findById(req.params.id).select('authorId comments');
+  if (!snippet) {
+    throw new ApiError(404, 'Snippet not found');
+  }
+
+  const comment = snippet.comments.id(req.params.commentId);
+  if (!comment) {
+    throw new ApiError(404, 'Comment not found');
+  }
+
+  const isCommentAuthor = comment.author.equals(req.user._id);
+  const isSnippetOwner = allowSnippetOwner && snippet.authorId?.equals(req.user._id);
+  if (!isCommentAuthor && !isSnippetOwner) {
+    throw new ApiError(403, 'Not your comment');
+  }
+
+  req.snippet = snippet;
+  req.comment = comment;
+  next();
+});

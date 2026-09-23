@@ -2,15 +2,13 @@ import { useState, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './styles.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { upvoteSnippet, downvoteSnippet, deleteSnippet, toggleBookmark } from '../features/snippetSlice';
+import { upvoteSnippet, downvoteSnippet, deleteSnippet, toggleBookmark, forkSnippet } from '../features/snippetSlice';
 import { fetchCollections, createCollection, addSnippetToCollection, removeSnippetFromCollection } from '../features/collectionSlice';
-import { toPrismLanguage } from '../utils/languages';
 import { highlightMatch } from '../utils/highlightMatch';
-import SyntaxHighlighter from '../utils/syntaxHighlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import CodeBlock from './CodeBlock';
 import {
   FaArrowUp, FaArrowDown, FaComment, FaCopy, FaCheck, FaPen, FaTrash,
-  FaBookmark, FaRegBookmark, FaFolderPlus, FaPlus
+  FaBookmark, FaRegBookmark, FaFolderPlus, FaPlus, FaCodeBranch
 } from 'react-icons/fa';
 
 const copyToClipboard = async (text) => {
@@ -34,13 +32,15 @@ const copyToClipboard = async (text) => {
   }
 };
 
-const SnippetCard = ({ snippet, highlightQuery }) => {
+const SnippetCard = ({ snippet, highlightQuery, detailed = false }) => {
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   const [collectionPanelOpen, setCollectionPanelOpen] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState('');
+  const [forkError, setForkError] = useState('');
+  const [forking, setForking] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector(state => state.auth);
@@ -62,6 +62,17 @@ const SnippetCard = ({ snippet, highlightQuery }) => {
   const handleUpvote = () => requireLogin(() => dispatch(upvoteSnippet(snippet._id)));
   const handleDownvote = () => requireLogin(() => dispatch(downvoteSnippet(snippet._id)));
   const handleBookmark = () => requireLogin(() => dispatch(toggleBookmark(snippet._id)));
+
+  const handleFork = () => requireLogin(async () => {
+    setForking(true);
+    try {
+      const result = await dispatch(forkSnippet(snippet._id)).unwrap();
+      navigate(`/snippet/${result._id}/edit`);
+    } catch (err) {
+      setForkError(err?.message || 'Failed to fork snippet. Please try again.');
+      setForking(false);
+    }
+  });
 
   const handleToggleCollectionPanel = () => requireLogin(() => {
     if (!collectionPanelOpen && !collectionsLoaded) {
@@ -122,6 +133,17 @@ const SnippetCard = ({ snippet, highlightQuery }) => {
             </span>
           )}
         </h6>
+
+        {snippet.forkedFrom && (
+          <p className="fork-attribution mb-2">
+            <FaCodeBranch className="me-1" />
+            Forked from{' '}
+            <Link to={`/snippet/${snippet.forkedFrom._id}`}>{snippet.forkedFrom.title}</Link>
+            {' '}by{' '}
+            <Link to={`/user/${encodeURIComponent(snippet.forkedFrom.author)}`}>{snippet.forkedFrom.author}</Link>
+          </p>
+        )}
+
         <p className="card-text">{highlightMatch(snippet.description, highlightQuery)}</p>
 
         {snippet.tags?.length > 0 && (
@@ -134,20 +156,10 @@ const SnippetCard = ({ snippet, highlightQuery }) => {
           </div>
         )}
 
-        <div className="code-block">
-          <SyntaxHighlighter
-            language={toPrismLanguage(snippet.language)}
-            style={vscDarkPlus}
-            customStyle={{
-              background: 'rgba(0, 0, 0, 0.3)',
-              borderRadius: '4px'
-            }}
-          >
-            {snippet.code}
-          </SyntaxHighlighter>
-        </div>
+        <CodeBlock code={snippet.code} language={snippet.language} title={snippet.title} showControls={detailed} />
 
         {deleteError && <p className="text-danger small mb-2">{deleteError}</p>}
+        {forkError && <p className="text-danger small mb-2">{forkError}</p>}
 
         {confirmingDelete ? (
           <div className="delete-confirm mt-3" role="alert">
@@ -225,6 +237,19 @@ const SnippetCard = ({ snippet, highlightQuery }) => {
                 <FaFolderPlus />
                 <span>Collections</span>
               </button>
+
+              {detailed && (
+                <button
+                  className="btn btn-copy"
+                  onClick={handleFork}
+                  title="Save a copy to your library"
+                  aria-label="Fork this snippet"
+                  disabled={forking}
+                >
+                  <FaCodeBranch />
+                  <span>{forking ? 'Forking...' : 'Fork'}</span>
+                </button>
+              )}
 
               {isOwner && (
                 <>

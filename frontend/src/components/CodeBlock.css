@@ -1,0 +1,76 @@
+.code-block-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.code-block-container.is-fullscreen,
+.code-block-container:fullscreen {
+  background: var(--dark-bg);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.code-block-container:fullscreen .code-block {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  max-height: none;
+}
+
+/* the shared .code-block class caps compact list-card views at 300px —
+   the detail page's whole point with F11 is a better reading experience,
+   so let it use the space it actually has */
+.code-block-expanded {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.code-block-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.code-control-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid #666;
+  background: transparent;
+  color: #ccc;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.code-control-btn:hover {
+  border-color: var(--neon-primary);
+  color: var(--neon-primary);
+}
+
+.code-control-btn.active {
+  background: var(--neon-primary);
+  border-color: var(--neon-primary);
+  color: var(--dark-bg);
+  font-weight: 700;
+}
+
+.raw-code {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  margin: 0;
+  padding: 1rem;
+  color: #e0e0e0;
+  overflow-x: auto;
+  white-space: pre;
+  font-family: 'Consolas', monospace;
+  font-size: 0.85rem;
+}
+
+.raw-code.wrapped {
+  white-space: pre-wrap;
+  word-break: break-word;
+}

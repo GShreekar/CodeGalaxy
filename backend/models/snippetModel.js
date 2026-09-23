@@ -69,6 +69,13 @@ const snippetSchema = new mongoose.Schema({
       validator: (arr) => arr.length <= 10,
       message: 'A snippet can have at most 10 tags'
     }
+  },
+  // set once at fork time, never changed — the attribution link back to
+  // whatever snippet this one was copied from (null for an original)
+  forkedFrom: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Snippet',
+    default: null
   }
 }, { timestamps: true });
 

@@ -6,9 +6,6 @@ export const getCollections = asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 })
     .select('name description snippets createdAt updatedAt');
 
-  // the list view needs to know WHICH snippets are in each collection (so a
-  // snippet card can show "already saved here"), just not their full data —
-  // the raw id array is cheap, unlike populating every snippet document
   res.json(collections.map((collection) => ({
     _id: collection._id,
     name: collection.name,
@@ -48,7 +45,6 @@ export const deleteCollection = asyncHandler(async (req, res) => {
 });
 
 export const addSnippetToCollection = asyncHandler(async (req, res) => {
-  // confirm the snippet actually exists before adding a dangling reference
   const snippetExists = await Snippet.exists({ _id: req.params.snippetId });
   if (!snippetExists) {
     throw new ApiError(404, 'Snippet not found');

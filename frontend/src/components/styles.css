@@ -333,6 +333,23 @@ select:focus-visible,
   font-weight: 700;
 }
 
+.fork-attribution {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: #9a9a9a;
+}
+
+.fork-attribution a {
+  color: var(--neon-secondary);
+  text-decoration: none;
+}
+
+.fork-attribution a:hover {
+  text-decoration: underline;
+}
+
 .tag-chip-row {
   display: flex;
   flex-wrap: wrap;

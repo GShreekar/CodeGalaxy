@@ -5,6 +5,21 @@ const SORTS = {
   popular: { score: -1, createdAt: -1 }
 };
 
+// replaces forkedFrom (an id, or null) with {_id, title, author} of whatever
+// this snippet was forked from — same field name and same shape .populate()
+// gives getSnippetById, so the frontend doesn't need two different contracts
+// depending on which endpoint a snippet came from
+const FORK_ATTRIBUTION_STAGES = [
+  { $lookup: {
+      from: 'snippets',
+      localField: 'forkedFrom',
+      foreignField: '_id',
+      as: 'forkedFrom',
+      pipeline: [{ $project: { title: 1, author: 1 } }]
+  } },
+  { $unwind: { path: '$forkedFrom', preserveNullAndEmptyArrays: true } }
+];
+
 // shared by the general snippet listing (getSnippets) and the public
 // per-user listing (getUserSnippets) — both are "paginated snippets
 // matching a filter", differing only in what the filter is
@@ -31,6 +46,7 @@ export const listSnippets = async ({ filter, sort, page, limit }) => {
       { $sort: sortOption },
       { $skip: (page - 1) * limit },
       { $limit: limit },
+      ...FORK_ATTRIBUTION_STAGES,
       { $project: { comments: 0 } }
     ]).allowDiskUse(true),
     Snippet.countDocuments(filter)
@@ -38,3 +54,5 @@ export const listSnippets = async ({ filter, sort, page, limit }) => {
 
   return { items, page, limit, total, pages: Math.ceil(total / limit) || 1 };
 };
+
+export { FORK_ATTRIBUTION_STAGES };

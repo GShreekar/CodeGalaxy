@@ -28,9 +28,6 @@ export const updateUser = asyncHandler(async (req, res) => {
   });
 });
 
-// the current user's own bookmarked snippets — reuses the same listSnippets
-// filter pattern as "my snippets"/"user's snippets", just filtered by
-// bookmarkedBy instead of authorId
 export const getUserBookmarks = asyncHandler(async (req, res) => {
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
   const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
@@ -38,7 +35,6 @@ export const getUserBookmarks = asyncHandler(async (req, res) => {
   res.json(await listSnippets({ filter: { bookmarkedBy: req.user._id }, sort: req.query.sort, page, limit }));
 });
 
-// public profile: only what's safe to show to anyone with the link — no email
 export const getUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findOne({ username: req.params.username }).select('name username createdAt');
   if (!user) {
