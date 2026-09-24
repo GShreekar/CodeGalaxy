@@ -1,6 +1,7 @@
-import { Snippet, User } from '../models/index.js';
+import { Snippet, User, SnippetView } from '../models/index.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
 import { listSnippets, FORK_ATTRIBUTION_STAGES } from '../services/snippetService.js';
+import { notifyComment, notifyNewSnippet } from '../services/notificationService.js';
 
 const buildSnippetFilter = ({ language, search, author, excludeAuthor, tags }) => {
   const filter = {};
@@ -44,12 +45,19 @@ export const getSnippets = asyncHandler(async (req, res) => {
 
 export const getSnippetById = asyncHandler(async (req, res) => {
   // comments are fetched separately (paginated) via getSnippetComments now
-  const snippet = await Snippet.findById(req.params.id)
+  const snippet = await Snippet.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { views: 1 } },
+    { new: true }
+  )
     .select('-comments')
     .populate({ path: 'forkedFrom', select: 'title author' });
   if (!snippet) {
     throw new ApiError(404, 'Snippet not found');
   }
+  // logged separately from the all-time counter above so "views this week"
+  // can be computed later without needing a scheduled reset job
+  await SnippetView.create({ snippet: snippet._id });
   res.json(snippet);
 });
 
@@ -77,6 +85,8 @@ export const createSnippet = asyncHandler(async (req, res) => {
     req.user._id,
     { $push: { usersnippets: snippet._id } }
   );
+
+  await notifyNewSnippet({ followerIds: req.user.followers, actor: req.user, snippet });
 
   res.status(201).json(snippet);
 });
@@ -171,6 +181,8 @@ export const addComment = asyncHandler(async (req, res) => {
   if (!snippet) {
     throw new ApiError(404, 'Snippet not found');
   }
+
+  await notifyComment({ snippetOwnerId: snippet.authorId, actor: req.user, snippet });
 
   res.status(201).json(snippet);
 });

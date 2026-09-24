@@ -76,7 +76,11 @@ const snippetSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Snippet',
     default: null
-  }
+  },
+  // all-time total, incremented on every detail-page view; time-windowed
+  // analytics (e.g. "views this week") come from the SnippetView log instead,
+  // since a single counter can't answer a "since when" question
+  views: { type: Number, default: 0 }
 }, { timestamps: true });
 
 snippetSchema.index({ createdAt: -1 });

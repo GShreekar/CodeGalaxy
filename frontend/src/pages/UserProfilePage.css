@@ -23,7 +23,8 @@
 
 .profile-stats {
   display: flex;
-  gap: 2rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
   margin-left: auto;
 }
 
@@ -45,6 +46,39 @@
   color: #9a9a9a;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.btn-follow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--neon-primary);
+  background: transparent;
+  color: var(--neon-primary);
+  border-radius: 4px;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.btn-follow:hover:not(:disabled) {
+  background: var(--neon-primary);
+  color: var(--dark-bg);
+}
+
+.btn-follow.following {
+  border-color: var(--neon-secondary);
+  color: var(--neon-secondary);
+}
+
+.btn-follow.following:hover:not(:disabled) {
+  background: var(--neon-secondary);
+  color: var(--dark-bg);
+}
+
+.btn-follow:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 @media (max-width: 576px) {

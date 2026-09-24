@@ -15,6 +15,14 @@ export const fetchUserProfile = createAsyncThunk(
   }
 );
 
+export const toggleFollow = createAsyncThunk(
+  'userProfile/toggleFollow',
+  async (username) => {
+    const response = await api.post(`/user/${username}/follow`);
+    return response.data;
+  }
+);
+
 const userProfileSlice = createSlice({
   name: 'userProfile',
   initialState: {
@@ -42,6 +50,12 @@ const userProfileSlice = createSlice({
         state.loading = false;
         state.profile = null;
         state.error = action.payload;
+      })
+      .addCase(toggleFollow.fulfilled, (state, action) => {
+        if (state.profile) {
+          state.profile.isFollowing = action.payload.following;
+          state.profile.followerCount = action.payload.followerCount;
+        }
       });
   }
 });

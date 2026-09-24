@@ -8,7 +8,7 @@ import { highlightMatch } from '../utils/highlightMatch';
 import CodeBlock from './CodeBlock';
 import {
   FaArrowUp, FaArrowDown, FaComment, FaCopy, FaCheck, FaPen, FaTrash,
-  FaBookmark, FaRegBookmark, FaFolderPlus, FaPlus, FaCodeBranch
+  FaBookmark, FaRegBookmark, FaFolderPlus, FaPlus, FaCodeBranch, FaEye
 } from 'react-icons/fa';
 
 const copyToClipboard = async (text) => {
@@ -205,6 +205,11 @@ const SnippetCard = ({ snippet, highlightQuery, detailed = false }) => {
                 <FaComment />
                 <span>Comments ({snippet.commentCount ?? snippet.comments?.length ?? 0})</span>
               </Link>
+
+              <span className="view-count" title="Views">
+                <FaEye />
+                <span>{snippet.views ?? 0}</span>
+              </span>
 
               <button
                 className="btn btn-copy"

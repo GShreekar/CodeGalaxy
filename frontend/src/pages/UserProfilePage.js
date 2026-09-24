@@ -1,19 +1,23 @@
-import { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserProfile, clearUserProfile } from '../features/userProfileSlice';
+import { fetchUserProfile, clearUserProfile, toggleFollow } from '../features/userProfileSlice';
 import { fetchUserSnippets } from '../features/snippetSlice';
 import SnippetCard from '../components/SnippetCard';
 import Avatar from '../components/Avatar';
 import Loader from '../components/Loader';
 import Alert from '../components/Alert';
+import { FaUserPlus, FaUserMinus } from 'react-icons/fa';
 import './UserProfilePage.css';
 
 const UserProfilePage = () => {
   const { username } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { profile, loading: profileLoading, error: profileError } = useSelector(state => state.userProfile);
   const { items, page, pages, loading: snippetsLoading } = useSelector(state => state.snippets);
+  const { user } = useSelector(state => state.auth);
+  const [followBusy, setFollowBusy] = useState(false);
 
   useEffect(() => {
     dispatch(fetchUserProfile(username));
@@ -25,6 +29,19 @@ const UserProfilePage = () => {
 
   const handleLoadMore = () => {
     dispatch(fetchUserSnippets({ username, page: page + 1 }));
+  };
+
+  const handleToggleFollow = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setFollowBusy(true);
+    try {
+      await dispatch(toggleFollow(username)).unwrap();
+    } finally {
+      setFollowBusy(false);
+    }
   };
 
   if (profileLoading) return <Loader />;
@@ -49,6 +66,18 @@ const UserProfilePage = () => {
             <p className="mb-0">
               Member since {new Date(profile.joinedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
             </p>
+            {(!user || user.username !== profile.username) && (
+              <button
+                type="button"
+                className={`btn btn-follow mt-2 ${profile.isFollowing ? 'following' : ''}`}
+                onClick={handleToggleFollow}
+                disabled={followBusy}
+                aria-pressed={profile.isFollowing}
+              >
+                {profile.isFollowing ? <FaUserMinus /> : <FaUserPlus />}
+                <span>{profile.isFollowing ? 'Following' : 'Follow'}</span>
+              </button>
+            )}
           </div>
           <div className="profile-stats">
             <div className="profile-stat">
@@ -58,6 +87,14 @@ const UserProfilePage = () => {
             <div className="profile-stat">
               <span className="profile-stat-value">{profile.totalUpvotes}</span>
               <span className="profile-stat-label">Upvotes</span>
+            </div>
+            <div className="profile-stat">
+              <span className="profile-stat-value">{profile.followerCount}</span>
+              <span className="profile-stat-label">Followers</span>
+            </div>
+            <div className="profile-stat">
+              <span className="profile-stat-value">{profile.followingCount}</span>
+              <span className="profile-stat-label">Following</span>
             </div>
           </div>
         </div>

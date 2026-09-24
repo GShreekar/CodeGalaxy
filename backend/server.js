@@ -39,12 +39,14 @@ import userRoutes from './routes/userRoutes.js';
 import snippetRoutes from './routes/snippetRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import collectionRoutes from './routes/collectionRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 
 app.use('/api', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/snippet', snippetRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/collections', collectionRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({

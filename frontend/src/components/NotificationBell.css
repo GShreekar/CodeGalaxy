@@ -1,0 +1,130 @@
+.notification-bell {
+  position: relative;
+  margin: 0 0.5rem;
+}
+
+.notification-bell-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.notification-bell-btn:hover {
+  border-color: var(--neon-primary);
+  color: var(--neon-primary);
+}
+
+.notification-badge {
+  position: absolute;
+  top: 0.1rem;
+  right: 0.1rem;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: var(--neon-secondary);
+  color: var(--dark-bg);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.1rem;
+  text-align: center;
+  box-shadow: 0 0 6px var(--neon-secondary);
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: 340px;
+  max-width: 90vw;
+  max-height: 420px;
+  display: flex;
+  flex-direction: column;
+  background: var(--dark-bg);
+  border: 1px solid var(--neon-primary);
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+  z-index: 1040;
+  overflow: hidden;
+}
+
+.notification-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--neon-primary);
+  font-weight: 700;
+}
+
+.notification-mark-all {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: transparent;
+  border: none;
+  color: #9a9a9a;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.notification-mark-all:hover {
+  color: var(--neon-primary);
+}
+
+.notification-list {
+  overflow-y: auto;
+}
+
+.notification-empty {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: #9a9a9a;
+  margin: 0;
+}
+
+.notification-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #e0e0e0;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.notification-item.unread {
+  background: rgba(0, 255, 255, 0.06);
+  border-left: 3px solid var(--neon-primary);
+}
+
+.notification-text {
+  font-size: 0.88rem;
+}
+
+.notification-time {
+  font-size: 0.72rem;
+  color: #9a9a9a;
+}

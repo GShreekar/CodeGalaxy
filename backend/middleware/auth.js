@@ -24,3 +24,25 @@ export const protect = asyncHandler(async (req, res, next) => {
   req.user = user;
   next();
 });
+
+// for public routes that render differently for a logged-in viewer (e.g. a
+// profile page showing "Follow" vs "Following") — a missing or invalid token
+// just means "treat as anonymous" rather than a 401
+export const optionalAuth = asyncHandler(async (req, res, next) => {
+  const authHeader = req.headers.authorization || '';
+  if (!authHeader.startsWith('Bearer ')) {
+    return next();
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select('-password');
+    if (user && user.tokenVersion === decoded.tokenVersion) {
+      req.user = user;
+    }
+  } catch (error) {
+    // invalid/expired token on a public route — fall through as anonymous
+  }
+  next();
+});

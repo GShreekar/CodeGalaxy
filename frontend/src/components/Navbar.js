@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import NotificationBell from './NotificationBell';
 import './styles.css';
 
 const Navbar = () => {
@@ -24,6 +25,7 @@ const Navbar = () => {
         >
           <span className="navbar-toggler-icon"></span>
         </button>
+        {user && <NotificationBell />}
         <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
           <ul className="navbar-nav ms-auto text-end">
             <li className="nav-item">

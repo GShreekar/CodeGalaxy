@@ -102,6 +102,15 @@
   color: var(--neon-primary);
 }
 
+.view-count {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.25rem;
+  color: #9a9a9a;
+  font-size: 0.9rem;
+}
+
 .search-input {
   background: var(--dark-bg);
   color: white;
