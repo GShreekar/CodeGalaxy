@@ -6,6 +6,7 @@ import SnippetCard from '../components/SnippetCard';
 import Loader from '../components/Loader';
 import { fetchSnippets } from '../features/snippetSlice';
 import Alert from '../components/Alert';
+import { toLanguageColor } from '../utils/languages';
 import './LanguagePage.css';
 
 const LanguagePage = () => {
@@ -48,6 +49,7 @@ const LanguagePage = () => {
     <div className="language-page">
       <div className="container py-4">
         <h1 className="language-title text-center mb-4">
+          <span className="language-dot" style={{ backgroundColor: toLanguageColor(normalizeLanguageName(language)) }} />
           {normalizeLanguageName(language)} Snippets
         </h1>
 
@@ -61,7 +63,9 @@ const LanguagePage = () => {
         {error && <Alert type="danger" message={error} className="mb-4" />}
 
         {items.length === 0 ? (
-          <div className="text-center">No snippets found</div>
+          <div className="no-snippets">
+            <h3 className="text-center neon-text">No snippets found</h3>
+          </div>
         ) : (
           <>
             <div className="row g-4">

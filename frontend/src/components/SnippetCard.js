@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { upvoteSnippet, downvoteSnippet, deleteSnippet, toggleBookmark, forkSnippet } from '../features/snippetSlice';
 import { fetchCollections, createCollection, addSnippetToCollection, removeSnippetFromCollection } from '../features/collectionSlice';
 import { highlightMatch } from '../utils/highlightMatch';
+import { toLanguageColor } from '../utils/languages';
 import CodeBlock from './CodeBlock';
 import {
   FaArrowUp, FaArrowDown, FaComment, FaCopy, FaCheck, FaPen, FaTrash,
@@ -124,7 +125,15 @@ const SnippetCard = ({ snippet, highlightQuery, detailed = false }) => {
   return (
     <div className="card snippet-card my-3">
       <div className="card-body">
-        <h5 className="card-title neon-text">{highlightMatch(snippet.title, highlightQuery)}</h5>
+        <div className="card-header-row">
+          <h5 className="card-title neon-text">{highlightMatch(snippet.title, highlightQuery)}</h5>
+          {snippet.language && (
+            <span className="language-badge">
+              <span className="language-dot" style={{ backgroundColor: toLanguageColor(snippet.language) }} />
+              {snippet.language}
+            </span>
+          )}
+        </div>
         <h6 className="card-subtitle mb-2 text-muted">
           by <Link to={`/user/${encodeURIComponent(snippet.author)}`} className="author-link">{snippet.author}</Link>
           {snippet.author !== "CodeGalaxy" && (

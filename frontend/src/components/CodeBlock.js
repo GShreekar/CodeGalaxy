@@ -95,11 +95,15 @@ const CodeBlock = ({ code, language, title, showControls = false }) => {
             style={vscDarkPlus}
             showLineNumbers
             wrapLongLines={wrapped}
+            lineNumberStyle={{ color: '#475569', minWidth: '2.5em' }}
             customStyle={{
-              background: 'rgba(0, 0, 0, 0.3)',
-              borderRadius: '4px',
+              background: 'var(--code-surface)',
+              borderRadius: 'var(--radius)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.85rem',
               margin: 0
             }}
+            codeTagProps={{ style: { fontFamily: 'var(--font-mono)' } }}
           >
             {code}
           </SyntaxHighlighter>

@@ -3,64 +3,39 @@
   background-color: var(--dark-bg);
   display: flex;
   align-items: center;
+  padding: 2rem 0;
 }
 
 .contact-card {
-  background: rgba(26, 26, 26, 0.9);
-  border: 1px solid var(--neon-primary);
-  border-radius: 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
   padding: 2rem;
   max-width: 600px;
   margin: 0 auto;
-  box-shadow: 0 0 20px var(--neon-primary);
-  animation: fadeIn 0.5s ease-in;
 }
 
-.form-control {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid var(--neon-primary);
-  color: white;
-  transition: all 0.3s ease;
+.contact-card .form-control {
+  background-color: var(--surface-input);
+  border: 1px solid var(--border-hairline);
+  color: var(--text-primary);
+  border-radius: var(--radius);
+  transition: var(--transition);
 }
 
-.form-control:focus {
-  background-color: rgba(255, 255, 255, 0.15);
-  border-color: var(--neon-secondary);
-  box-shadow: 0 0 10px var(--neon-secondary);
-  color: white;
+.contact-card .form-control:focus {
+  background-color: var(--surface-input);
+  border-color: var(--neon-primary);
+  box-shadow: 0 0 0 1px var(--neon-primary), 0 0 12px rgba(0, 229, 255, 0.2);
+  color: var(--text-primary);
 }
 
-.form-control::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.btn-primary {
-  background: transparent;
-  border: 1px solid var(--neon-primary);
-  color: var(--neon-primary);
-  padding: 10px 20px;
-  transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-  background: var(--neon-primary);
-  color: var(--dark-bg);
-  box-shadow: 0 0 15px var(--neon-primary);
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.contact-card .form-control::placeholder {
+  color: var(--text-muted);
 }
 
 @media (max-width: 768px) {
   .contact-card {
-    margin: 20px;
+    margin: 0 20px;
   }
 }

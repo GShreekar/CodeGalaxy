@@ -13,14 +13,14 @@
   background: transparent;
   border: 1px solid transparent;
   border-radius: 50%;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-secondary);
   font-size: 1.1rem;
   cursor: pointer;
   transition: var(--transition);
 }
 
 .notification-bell-btn:hover {
-  border-color: var(--neon-primary);
+  border-color: var(--border-hover-primary);
   color: var(--neon-primary);
 }
 
@@ -31,29 +31,29 @@
   min-width: 1.1rem;
   height: 1.1rem;
   padding: 0 0.25rem;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--neon-secondary);
-  color: var(--dark-bg);
+  color: #fff;
   font-size: 0.65rem;
   font-weight: 700;
   line-height: 1.1rem;
   text-align: center;
-  box-shadow: 0 0 6px var(--neon-secondary);
+  box-shadow: 0 0 6px rgba(193, 75, 255, 0.5);
 }
 
 .notification-dropdown {
   position: absolute;
   top: calc(100% + 0.5rem);
   right: 0;
-  width: 340px;
+  width: 360px;
   max-width: 90vw;
-  max-height: 420px;
+  max-height: 480px;
   display: flex;
   flex-direction: column;
-  background: var(--dark-bg);
-  border: 1px solid var(--neon-primary);
-  border-radius: 8px;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+  background: var(--surface-modal);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.8);
   z-index: 1040;
   overflow: hidden;
 }
@@ -62,10 +62,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--neon-primary);
-  font-weight: 700;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border-hairline);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-weight: 600;
 }
 
 .notification-mark-all {
@@ -74,12 +75,43 @@
   gap: 0.3rem;
   background: transparent;
   border: none;
-  color: #9a9a9a;
-  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-size: 0.76rem;
   cursor: pointer;
 }
 
 .notification-mark-all:hover {
+  color: var(--neon-primary);
+}
+
+.notification-tabs {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border-hairline);
+  overflow-x: auto;
+}
+
+.notification-tab {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--border-hairline);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.notification-tab:hover {
+  color: var(--text-primary);
+}
+
+.notification-tab.active {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: var(--neon-primary);
   color: var(--neon-primary);
 }
 
@@ -90,17 +122,17 @@
 .notification-empty {
   padding: 1.5rem 1rem;
   text-align: center;
-  color: #9a9a9a;
+  color: var(--text-secondary);
   margin: 0;
 }
 
 .notification-item {
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  align-items: flex-start;
+  gap: 0.65rem;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  color: #e0e0e0;
+  border-bottom: 1px solid var(--border-hairline);
+  color: var(--text-primary);
   text-decoration: none;
   cursor: pointer;
   transition: var(--transition);
@@ -111,20 +143,43 @@
 }
 
 .notification-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
 }
 
 .notification-item.unread {
-  background: rgba(0, 255, 255, 0.06);
-  border-left: 3px solid var(--neon-primary);
+  background: rgba(0, 229, 255, 0.05);
+  border-left: 2px solid var(--neon-primary);
+}
+
+.notification-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  margin-top: 0.1rem;
+}
+
+.notification-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
 }
 
 .notification-text {
-  font-size: 0.88rem;
+  font-size: 0.86rem;
+  line-height: 1.4;
 }
 
 .notification-time {
-  font-size: 0.72rem;
-  color: #9a9a9a;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
 }

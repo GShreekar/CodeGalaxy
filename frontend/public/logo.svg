@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" fill="none">
+  <defs>
+    <linearGradient id="cg-orbit" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00e5ff" />
+      <stop offset="100%" stop-color="#c14bff" />
+    </linearGradient>
+    <linearGradient id="cg-glow" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#c14bff" stop-opacity="0.1"/>
+    </linearGradient>
+  </defs>
+  <!-- Mark -->
+  <rect x="2" y="2" width="36" height="36" rx="10" fill="#141622" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+  <circle cx="20" cy="20" r="14" stroke="url(#cg-glow)" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <!-- Code brackets constellation -->
+  <path d="M16 15L11 20L16 25" stroke="#00e5ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24 15L29 20L24 25" stroke="#c14bff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="20" cy="20" r="2.5" fill="#ffffff"/>
+  <!-- Wordmark -->
+  <text x="48" y="25" fill="#ffffff" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="19" letter-spacing="-0.03em">Code<tspan fill="#00e5ff">Galaxy</tspan></text>
+</svg>

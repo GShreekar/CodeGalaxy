@@ -35,3 +35,17 @@ const FILE_EXTENSIONS = {
 };
 
 export const toFileExtension = (language) => FILE_EXTENSIONS[language] || 'txt';
+
+// a recognizable identity color per language, used for the small dot on
+// language chips/badges — conventional community colors where one exists
+// (e.g. GitHub's linguist palette), a reasonable pick otherwise
+const LANGUAGE_COLORS = {
+  'Bash': '#89e051', 'C': '#555555', 'C#': '#178600', 'C++': '#f34b7d', 'CSS': '#563d7c',
+  'Dart': '#00b4ab', 'Elixir': '#6e4a7e', 'Go': '#00add8', 'Haskell': '#5e5086', 'HTML': '#e34c26',
+  'Java': '#b07219', 'JavaScript': '#f1e05a', 'JSON': '#292929', 'Kotlin': '#a97bff', 'Lua': '#000080',
+  'Markdown': '#083fa1', 'Objective-C': '#438eff', 'Perl': '#0298c3', 'PHP': '#4f5d95', 'PowerShell': '#012456',
+  'Python': '#3572a5', 'R': '#198ce7', 'Ruby': '#701516', 'Rust': '#dea584', 'Scala': '#c22d40',
+  'SQL': '#e38c00', 'Swift': '#f05138', 'Text': '#94a3b8', 'TypeScript': '#3178c6', 'YAML': '#cb171e'
+};
+
+export const toLanguageColor = (language) => LANGUAGE_COLORS[language] || '#00e5ff';

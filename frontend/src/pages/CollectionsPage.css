@@ -5,11 +5,8 @@
 }
 
 .page-title {
-  color: var(--neon-primary);
-  font-size: 2.5rem;
+  font-size: 2rem;
   margin: 0;
-  text-shadow: 0 0 10px var(--neon-primary),
-                0 0 20px var(--neon-primary);
 }
 
 .header-section {
@@ -19,43 +16,73 @@
 .no-snippets {
   padding: 40px;
   text-align: center;
-  background: rgba(0, 255, 255, 0.05);
-  border-radius: 8px;
-  border: 1px solid var(--neon-primary);
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-hairline);
   margin-top: 2rem;
 }
 
 .collection-create-form .form-control {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--surface-input);
+  border: 1px solid var(--border-hairline);
+  color: var(--text-primary);
+}
+
+.collection-create-form .form-control:focus {
+  background-color: var(--surface-input);
+  color: var(--text-primary);
+  border-color: var(--neon-primary);
+  box-shadow: 0 0 0 1px var(--neon-primary), 0 0 12px rgba(0, 229, 255, 0.2);
+}
+
+.collection-create-form .form-control::placeholder {
+  color: var(--text-muted);
+}
+
+.btn-create {
+  background: var(--neon-primary);
   border: 1px solid var(--neon-primary);
-  color: white;
+  color: var(--surface-canvas);
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.btn-create:hover:not(:disabled) {
+  background: var(--neon-primary-hover);
+  border-color: var(--neon-primary-hover);
+}
+
+.btn-create:disabled {
+  background: var(--text-muted);
+  border-color: var(--text-muted);
+  opacity: 0.6;
 }
 
 .collection-card {
-  background: rgba(26, 26, 26, 0.9);
-  border: 1px solid var(--neon-primary);
-  border-radius: 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
   height: 100%;
   transition: var(--transition);
 }
 
 .collection-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0 20px var(--neon-primary);
+  border-color: var(--border-hover-primary);
+  box-shadow: 0 0 24px -4px rgba(0, 229, 255, 0.12);
 }
 
 .collection-link {
-  color: var(--neon-primary);
+  color: var(--text-primary);
   text-decoration: none;
 }
 
 .collection-link:hover {
-  text-shadow: 0 0 8px var(--neon-primary);
+  color: var(--neon-primary);
 }
 
 @media (max-width: 768px) {
   .page-title {
-    font-size: 2rem;
+    font-size: 1.7rem;
   }
 }

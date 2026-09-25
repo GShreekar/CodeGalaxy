@@ -1,13 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaBell, FaCheckDouble } from 'react-icons/fa';
+import { FaBell, FaCheckDouble, FaComment, FaUserPlus, FaCodeBranch } from 'react-icons/fa';
 import {
   fetchNotifications, fetchUnreadCount, markNotificationRead, markAllNotificationsRead
 } from '../features/notificationSlice';
 import './NotificationBell.css';
 
 const UNREAD_POLL_MS = 45000;
+
+const TABS = [
+  { value: 'all', label: 'All' },
+  { value: 'comment', label: 'Comments' },
+  { value: 'follow', label: 'Follows' },
+  { value: 'new_snippet', label: 'New Snippets' }
+];
+
+const TYPE_ICON = {
+  comment: <FaComment />,
+  follow: <FaUserPlus />,
+  new_snippet: <FaCodeBranch />
+};
 
 const describe = (notification) => {
   switch (notification.type) {
@@ -30,6 +43,7 @@ const notificationLink = (notification) => {
 
 const NotificationBell = () => {
   const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
   const containerRef = useRef(null);
   const dispatch = useDispatch();
   const { items, unreadCount, loading } = useSelector(state => state.notifications);
@@ -68,6 +82,8 @@ const NotificationBell = () => {
 
   if (!user) return null;
 
+  const visibleItems = activeTab === 'all' ? items : items.filter((n) => n.type === activeTab);
+
   return (
     <div className="notification-bell" ref={containerRef}>
       <button
@@ -97,18 +113,34 @@ const NotificationBell = () => {
             )}
           </div>
 
+          <div className="notification-tabs">
+            {TABS.map((tab) => (
+              <button
+                key={tab.value}
+                type="button"
+                className={`notification-tab ${activeTab === tab.value ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab.value)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
           <div className="notification-list">
             {loading && items.length === 0 ? (
               <p className="notification-empty">Loading...</p>
-            ) : items.length === 0 ? (
-              <p className="notification-empty">No notifications yet.</p>
+            ) : visibleItems.length === 0 ? (
+              <p className="notification-empty">No notifications here.</p>
             ) : (
-              items.map((notification) => {
+              visibleItems.map((notification) => {
                 const link = notificationLink(notification);
                 const content = (
                   <>
-                    <span className="notification-text">{describe(notification)}</span>
-                    <span className="notification-time">{new Date(notification.createdAt).toLocaleString()}</span>
+                    <span className="notification-icon">{TYPE_ICON[notification.type]}</span>
+                    <span className="notification-body">
+                      <span className="notification-text">{describe(notification)}</span>
+                      <span className="notification-time">{new Date(notification.createdAt).toLocaleString()}</span>
+                    </span>
                   </>
                 );
                 return link ? (

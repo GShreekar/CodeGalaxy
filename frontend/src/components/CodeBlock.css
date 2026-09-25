@@ -6,7 +6,7 @@
 
 .code-block-container.is-fullscreen,
 .code-block-container:fullscreen {
-  background: var(--dark-bg);
+  background: var(--surface-canvas);
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -29,7 +29,10 @@
 .code-block-controls {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.4rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-hairline);
 }
 
 .code-control-btn {
@@ -37,36 +40,38 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0.3rem 0.7rem;
-  border: 1px solid #666;
+  border: 1px solid var(--border-hairline);
   background: transparent;
-  color: #ccc;
-  border-radius: 4px;
-  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
   transition: var(--transition);
   cursor: pointer;
 }
 
 .code-control-btn:hover {
-  border-color: var(--neon-primary);
+  border-color: var(--border-hover-primary);
   color: var(--neon-primary);
+  background: rgba(0, 229, 255, 0.06);
 }
 
 .code-control-btn.active {
-  background: var(--neon-primary);
+  background: rgba(0, 229, 255, 0.12);
   border-color: var(--neon-primary);
-  color: var(--dark-bg);
-  font-weight: 700;
+  color: var(--neon-primary);
+  font-weight: 600;
 }
 
 .raw-code {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
+  background: var(--code-surface);
+  border-radius: var(--radius);
   margin: 0;
   padding: 1rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
   overflow-x: auto;
   white-space: pre;
-  font-family: 'Consolas', monospace;
+  font-family: var(--font-mono);
   font-size: 0.85rem;
 }
 

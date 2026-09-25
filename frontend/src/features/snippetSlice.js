@@ -116,9 +116,10 @@ export const fetchSnippetAuthors = createAsyncThunk(
 
 export const fetchUserSnippets = createAsyncThunk(
   'snippets/fetchUserSnippets',
-  async ({ username, sort = '', page = 1 }) => {
+  async ({ username, sort = '', page = 1, limit = '' }) => {
     const params = new URLSearchParams();
     if (sort) params.append('sort', sort);
+    if (limit) params.append('limit', limit);
     params.append('page', page);
 
     const response = await api.get(`/user/${username}/snippets?${params}`);
@@ -203,6 +204,7 @@ const snippetSlice = createSlice({
     total: 0,
     pages: 1,
     trending: [],
+    trendingLoading: false,
     authors: [],
     currentSnippet: null,
     languageStats: [],
@@ -348,8 +350,15 @@ const snippetSlice = createSlice({
       .addCase(toggleBookmark.fulfilled, (state, action) => {
         replaceInItems(state, action.payload);
       })
+      .addCase(fetchTrendingSnippets.pending, (state) => {
+        state.trendingLoading = true;
+      })
       .addCase(fetchTrendingSnippets.fulfilled, (state, action) => {
+        state.trendingLoading = false;
         state.trending = action.payload;
+      })
+      .addCase(fetchTrendingSnippets.rejected, (state) => {
+        state.trendingLoading = false;
       })
       .addCase(fetchSnippetAuthors.fulfilled, (state, action) => {
         state.authors = action.payload;

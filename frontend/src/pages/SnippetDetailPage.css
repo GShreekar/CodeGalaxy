@@ -4,72 +4,146 @@
   padding: 20px 0;
 }
 
-.snippet-card {
-  background: rgba(26, 26, 26, 0.9);
-  border: 1px solid var(--neon-primary);
-  border-radius: 10px;
-  padding: 2rem;
-  box-shadow: 0 0 20px var(--neon-primary);
+.detail-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
 }
 
-.code-block {
-  background: rgba(0, 0, 0, 0.3);
-  padding: 1rem;
-  border-radius: 4px;
-  margin-top: 1rem;
-  overflow-x: auto;
+.detail-breadcrumb a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.detail-breadcrumb a:hover {
+  color: var(--neon-primary);
+}
+
+.detail-breadcrumb-sep {
+  color: var(--text-muted);
+}
+
+.detail-breadcrumb-current {
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 40ch;
+}
+
+.snippet-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  align-items: start;
+  gap: 1.5rem;
+}
+
+.snippet-detail-main {
+  min-width: 0;
+}
+
+.author-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.4rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1.25rem;
+}
+
+.author-card-name {
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-decoration: none;
+  margin-top: 0.5rem;
+}
+
+.author-card-name:hover {
+  color: var(--neon-primary);
+}
+
+.author-card-username {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.author-card-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  width: 100%;
+  margin: 1rem 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-hairline);
+}
+
+.author-card-stats > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.author-card-stat-value {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+}
+
+.author-card-stat-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.author-card-follow-btn {
+  width: 100%;
+  justify-content: center;
 }
 
 .comments-section {
-  max-width: 800px;
-  margin: 0 auto;
+  margin-top: 2rem;
 }
 
 .comments-title {
-  border-bottom: 1px solid var(--neon-primary);
-  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-hairline);
+  padding-bottom: 0.75rem;
 }
 
 .comment-form textarea {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid var(--neon-primary);
-  color: white;
-  transition: all 0.3s ease;
+  background-color: var(--surface-input);
+  border: 1px solid var(--border-hairline);
+  color: var(--text-primary);
+  transition: var(--transition);
 }
 
 .comment-form textarea:focus {
-  background-color: rgba(255, 255, 255, 0.15);
-  border-color: var(--neon-secondary);
-  box-shadow: 0 0 10px var(--neon-secondary);
-}
-
-.btn-comment {
-  background: transparent;
-  border: 1px solid var(--neon-secondary);
-  color: var(--neon-secondary);
-  transition: all 0.3s ease;
-}
-
-.btn-comment:hover {
-  background: var(--neon-secondary);
-  color: var(--dark-bg);
-  box-shadow: 0 0 15px var(--neon-secondary);
+  background-color: var(--surface-input);
+  border-color: var(--neon-primary);
+  box-shadow: 0 0 0 1px var(--neon-primary), 0 0 12px rgba(0, 229, 255, 0.15);
 }
 
 .comment-card {
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
   margin-bottom: 1rem;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: var(--transition);
+  border: 1px solid var(--border-hairline);
 }
 
 .comment-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .comment-header {
@@ -77,18 +151,21 @@
 }
 
 .comment-author {
-  color: var(--neon-primary);
-  font-weight: bold;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
 }
 
 .comment-body {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-secondary);
   white-space: pre-wrap;
+  line-height: 1.55;
 }
 
 .comment-edited {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
   font-weight: normal;
 }
 
@@ -103,57 +180,49 @@
   align-items: center;
   justify-content: center;
   padding: 0.3rem 0.5rem;
-  border: 1px solid #666;
+  border: 1px solid var(--border-hairline);
   background: transparent;
-  color: #ccc;
-  border-radius: 4px;
-  transition: all 0.3s ease;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
   cursor: pointer;
 }
 
 .comment-action-btn:hover {
-  border-color: var(--neon-primary);
+  border-color: var(--border-hover-primary);
   color: var(--neon-primary);
 }
 
 .comment-edit-form textarea {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid var(--neon-primary);
-  color: white;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  background-color: var(--surface-input);
+  border: 1px solid var(--border-hairline);
+  color: var(--text-primary);
 }
 
 .login-prompt {
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  border: 1px solid var(--neon-primary);
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-hairline);
+  color: var(--text-secondary);
 }
 
 .neon-link {
   color: var(--neon-primary);
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: var(--transition);
 }
 
 .neon-link:hover {
-  text-shadow: 0 0 8px var(--neon-primary);
-  color: var(--neon-primary);
+  text-decoration: underline;
 }
 
-@media (max-width: 768px) {
-  .snippet-card,
-  .comments-section {
-    margin: 10px;
+@media (max-width: 991px) {
+  .snippet-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .snippet-detail-aside {
+    order: -1;
   }
 }

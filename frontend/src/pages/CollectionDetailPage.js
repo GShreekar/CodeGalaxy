@@ -5,7 +5,27 @@ import { fetchCollectionById, updateCollection, clearCurrentCollection } from '.
 import SnippetCard from '../components/SnippetCard';
 import Loader from '../components/Loader';
 import Alert from '../components/Alert';
+import { FaLink, FaCheck } from 'react-icons/fa';
 import './CollectionsPage.css';
+
+const copyToClipboard = async (text) => {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  try {
+    document.execCommand('copy');
+  } finally {
+    document.body.removeChild(textarea);
+  }
+};
 
 const CollectionDetailPage = () => {
   const { id } = useParams();
@@ -13,11 +33,22 @@ const CollectionDetailPage = () => {
   const { current, loading, error } = useSelector(state => state.collections);
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState('');
+  const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
     dispatch(fetchCollectionById(id));
     return () => dispatch(clearCurrentCollection());
   }, [dispatch, id]);
+
+  const handleCopyLink = async () => {
+    try {
+      await copyToClipboard(window.location.href);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch (err) {
+      // clipboard access can be denied by the browser — the link stays visible in the address bar either way
+    }
+  };
 
   const handleRename = async (e) => {
     e.preventDefault();
@@ -57,13 +88,17 @@ const CollectionDetailPage = () => {
               </button>
             </form>
           ) : (
-            <h2 className="page-title neon-text">
+            <h2 className="page-title neon-text d-flex align-items-center flex-wrap gap-3">
               {current.name}
               <button
-                className="btn btn-copy btn-sm ms-3"
+                className="btn btn-copy btn-sm"
                 onClick={() => { setNameInput(current.name); setEditingName(true); }}
               >
                 Rename
+              </button>
+              <button className="btn btn-copy btn-sm" onClick={handleCopyLink}>
+                {linkCopied ? <FaCheck /> : <FaLink />}
+                <span className="ms-1">{linkCopied ? 'Copied!' : 'Share Link'}</span>
               </button>
             </h2>
           )}

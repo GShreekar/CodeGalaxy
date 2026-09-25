@@ -9,11 +9,10 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1.5rem;
-  background: rgba(26, 26, 26, 0.9);
-  border: 1px solid var(--neon-primary);
-  border-radius: 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
   padding: 1.5rem 2rem;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.15);
 }
 
 .profile-header-info {
@@ -35,50 +34,17 @@
 }
 
 .profile-stat-value {
-  font-size: 1.6rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
   font-weight: 700;
-  color: var(--neon-secondary);
-  text-shadow: 0 0 8px var(--neon-secondary);
+  color: var(--text-primary);
 }
 
 .profile-stat-label {
-  font-size: 0.8rem;
-  color: #9a9a9a;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-}
-
-.btn-follow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 1rem;
-  border: 1px solid var(--neon-primary);
-  background: transparent;
-  color: var(--neon-primary);
-  border-radius: 4px;
-  transition: var(--transition);
-  cursor: pointer;
-}
-
-.btn-follow:hover:not(:disabled) {
-  background: var(--neon-primary);
-  color: var(--dark-bg);
-}
-
-.btn-follow.following {
-  border-color: var(--neon-secondary);
-  color: var(--neon-secondary);
-}
-
-.btn-follow.following:hover:not(:disabled) {
-  background: var(--neon-secondary);
-  color: var(--dark-bg);
-}
-
-.btn-follow:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 @media (max-width: 576px) {

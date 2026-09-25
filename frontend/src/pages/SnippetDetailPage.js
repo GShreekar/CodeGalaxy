@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 import {
   fetchSnippetById, addComment, fetchSnippetComments, updateComment,
   deleteComment, clearCurrentSnippet, clearComments
 } from '../features/snippetSlice';
+import { fetchUserProfile, clearUserProfile, toggleFollow } from '../features/userProfileSlice';
 import Loader from '../components/Loader';
 import Alert from '../components/Alert';
 import SnippetCard from '../components/SnippetCard';
-import { FaPen, FaTrash, FaCheck, FaTimes } from 'react-icons/fa';
+import Avatar from '../components/Avatar';
+import { FaPen, FaTrash, FaCheck, FaTimes, FaUserPlus, FaUserMinus } from 'react-icons/fa';
 import './SnippetDetailPage.css';
 
 const CommentItem = ({ comment, snippetId, canEdit, canDelete }) => {
@@ -108,10 +110,13 @@ const CommentItem = ({ comment, snippetId, canEdit, canDelete }) => {
 const SnippetDetailPage = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { currentSnippet, loading, comments } = useSelector(state => state.snippets);
   const { user } = useSelector(state => state.auth);
+  const { profile: authorProfile } = useSelector(state => state.userProfile);
   const [commentText, setCommentText] = useState('');
   const [error, setError] = useState('');
+  const [followBusy, setFollowBusy] = useState(false);
 
   useEffect(() => {
     dispatch(fetchSnippetById(id));
@@ -121,6 +126,27 @@ const SnippetDetailPage = () => {
       dispatch(clearComments());
     };
   }, [dispatch, id]);
+
+  useEffect(() => {
+    if (!currentSnippet?.author) return;
+    dispatch(fetchUserProfile(currentSnippet.author));
+    return () => {
+      dispatch(clearUserProfile());
+    };
+  }, [dispatch, currentSnippet?.author]);
+
+  const handleToggleFollow = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setFollowBusy(true);
+    try {
+      await dispatch(toggleFollow(currentSnippet.author)).unwrap();
+    } finally {
+      setFollowBusy(false);
+    }
+  };
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
@@ -162,64 +188,115 @@ const SnippetDetailPage = () => {
       </Helmet>
 
       <div className="container py-4">
-        <SnippetCard snippet={currentSnippet} detailed />
+        <nav className="detail-breadcrumb" aria-label="Breadcrumb">
+          <Link to="/">Home</Link>
+          <span className="detail-breadcrumb-sep">/</span>
+          <Link to={`/language/${currentSnippet.language.toLowerCase()}`}>{currentSnippet.language}</Link>
+          <span className="detail-breadcrumb-sep">/</span>
+          <span className="detail-breadcrumb-current">{currentSnippet.title}</span>
+        </nav>
 
-        <div className="comments-section">
-          <h4 className="comments-title neon-text mb-4">Comments</h4>
+        <div className="snippet-detail-grid">
+          <div className="snippet-detail-main">
+            <SnippetCard snippet={currentSnippet} detailed />
 
-          {error && <Alert type="danger" message={error} className="mb-3" />}
+            <div className="comments-section">
+              <h4 className="comments-title neon-text mb-4">Discussion ({comments.total})</h4>
 
-          {user ? (
-            <form onSubmit={handleSubmitComment} className="comment-form mb-4">
-              <div className="form-group">
-                <textarea
-                  className="form-control"
-                  rows="3"
-                  placeholder="Add a comment..."
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  maxLength={1000}
-                  required
-                />
+              {error && <Alert type="danger" message={error} className="mb-3" />}
+
+              {user ? (
+                <form onSubmit={handleSubmitComment} className="comment-form mb-4">
+                  <div className="form-group">
+                    <textarea
+                      className="form-control"
+                      rows="3"
+                      placeholder="Share benchmarks, edge-cases, or optimizations..."
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      maxLength={1000}
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-comment mt-2">
+                    Comment
+                  </button>
+                </form>
+              ) : (
+                <div className="login-prompt mb-4">
+                  <Link to="/login" className="neon-link">Log in</Link> to leave a comment.
+                </div>
+              )}
+
+              <div className="comments-list">
+                {comments.items.length === 0 && !comments.loading ? (
+                  <p className="text-center">No comments yet. Be the first to comment!</p>
+                ) : (
+                  comments.items.map((comment) => {
+                    const isCommentAuthor = Boolean(user) && (comment.author === user._id || comment.username === user.username);
+                    return (
+                      <CommentItem
+                        key={comment._id}
+                        comment={comment}
+                        snippetId={id}
+                        canEdit={isCommentAuthor}
+                        canDelete={isCommentAuthor || isSnippetOwner}
+                      />
+                    );
+                  })
+                )}
               </div>
-              <button type="submit" className="btn btn-comment mt-2">
-                Add Comment
-              </button>
-            </form>
-          ) : (
-            <div className="login-prompt mb-4">
-              <Link to="/login" className="neon-link">Log in</Link> to leave a comment.
-            </div>
-          )}
 
-          <div className="comments-list">
-            {comments.items.length === 0 && !comments.loading ? (
-              <p className="text-center">No comments yet. Be the first to comment!</p>
-            ) : (
-              comments.items.map((comment) => {
-                const isCommentAuthor = Boolean(user) && (comment.author === user._id || comment.username === user.username);
-                return (
-                  <CommentItem
-                    key={comment._id}
-                    comment={comment}
-                    snippetId={id}
-                    canEdit={isCommentAuthor}
-                    canDelete={isCommentAuthor || isSnippetOwner}
-                  />
-                );
-              })
-            )}
+              {comments.loading && <Loader />}
+
+              {!comments.loading && comments.page < comments.pages && (
+                <div className="text-center mt-3">
+                  <button type="button" className="btn btn-comment" onClick={handleLoadMore}>
+                    Load more comments
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
-          {comments.loading && <Loader />}
+          <aside className="snippet-detail-aside">
+            {authorProfile && authorProfile.username === currentSnippet.author && (
+              <div className="author-card">
+                <Avatar username={authorProfile.username} size={56} />
+                <Link to={`/user/${encodeURIComponent(authorProfile.username)}`} className="author-card-name">
+                  {authorProfile.name}
+                </Link>
+                <span className="author-card-username">@{authorProfile.username}</span>
 
-          {!comments.loading && comments.page < comments.pages && (
-            <div className="text-center mt-3">
-              <button type="button" className="btn btn-comment" onClick={handleLoadMore}>
-                Load more comments
-              </button>
-            </div>
-          )}
+                <div className="author-card-stats">
+                  <div>
+                    <span className="author-card-stat-value">{authorProfile.snippetCount}</span>
+                    <span className="author-card-stat-label">Snippets</span>
+                  </div>
+                  <div>
+                    <span className="author-card-stat-value">{authorProfile.totalUpvotes}</span>
+                    <span className="author-card-stat-label">Upvotes</span>
+                  </div>
+                  <div>
+                    <span className="author-card-stat-value">{authorProfile.followerCount}</span>
+                    <span className="author-card-stat-label">Followers</span>
+                  </div>
+                </div>
+
+                {(!user || user.username !== authorProfile.username) && (
+                  <button
+                    type="button"
+                    className={`btn btn-follow author-card-follow-btn ${authorProfile.isFollowing ? 'following' : ''}`}
+                    onClick={handleToggleFollow}
+                    disabled={followBusy}
+                  >
+                    {authorProfile.isFollowing ? <FaUserMinus /> : <FaUserPlus />}
+                    <span>{authorProfile.isFollowing ? 'Following' : 'Follow'}</span>
+                  </button>
+                )}
+              </div>
+            )}
+          </aside>
         </div>
       </div>
     </div>

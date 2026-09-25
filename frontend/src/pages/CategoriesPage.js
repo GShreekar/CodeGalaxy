@@ -27,6 +27,16 @@ const CategoriesPage = () => {
   return (
     <div className="categories-page">
       <div className="container py-4">
+        <div className="categories-header">
+          <span className="section-kicker">Index</span>
+          <h1 className="categories-title">
+            Explore by <span className="accent-gradient">Language</span>
+          </h1>
+          <p className="categories-subtitle">
+            Browse snippets grouped by the language they're written in.
+          </p>
+        </div>
+
         <div className="search-container mb-4">
           <SearchBar onSearch={handleSearch} placeholder="Search languages..." />
         </div>
@@ -34,9 +44,9 @@ const CategoriesPage = () => {
         <div className="row g-4">
           {filteredLanguages.map(language => (
             <div key={language} className="col-12 col-md-6 col-lg-4">
-              <CategoryCard 
+              <CategoryCard
                 language={language}
-                count={languageStats?.find(stat => 
+                count={languageStats?.find(stat =>
                   stat.language.toLowerCase() === language.toLowerCase()
                 )?.count || 0}
               />

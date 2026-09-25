@@ -4,14 +4,14 @@ import { useSearchParams } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import SnippetCard from '../components/SnippetCard';
 import Loader from '../components/Loader';
-import { fetchSnippets } from '../features/snippetSlice';
-import { LANGUAGES } from '../utils/languages';
+import { fetchSnippets, getLanguageStats } from '../features/snippetSlice';
+import { LANGUAGES, toLanguageColor } from '../utils/languages';
 import '../components/styles.css';
 import './SnippetsPage.css';
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest' },
-  { value: 'popular', label: 'Most Popular' }
+  { value: 'popular', label: 'Most Upvoted' }
 ];
 
 const SnippetsPage = () => {
@@ -21,7 +21,11 @@ const SnippetsPage = () => {
   const tag = searchParams.get('tags') || '';
   const [searchQuery, setSearchQuery] = useState('');
   const dispatch = useDispatch();
-  const { items, page, pages, loading } = useSelector(state => state.snippets);
+  const { items, page, pages, total, loading, languageStats } = useSelector(state => state.snippets);
+
+  useEffect(() => {
+    dispatch(getLanguageStats());
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchSnippets({ search: searchQuery, sort, language, tags: tag, page: 1 }));
@@ -63,12 +67,21 @@ const SnippetsPage = () => {
     dispatch(fetchSnippets({ search: searchQuery, sort, language, tags: tag, page: page + 1 }));
   };
 
+  const countFor = (lang) =>
+    languageStats?.find((s) => s.language.toLowerCase() === lang.toLowerCase())?.count || 0;
+
   if (loading && page === 1) return <Loader />;
 
   return (
     <div className="snippets-page">
       <div className="container py-4">
-        <div className="search-container mb-4">
+        <div className="explore-header">
+          <span className="section-kicker">Global Snippet Registry</span>
+          <h1 className="neon-text mb-1">Explore Snippets</h1>
+          <p className="text-muted mb-0">Discover snippets curated by the community.</p>
+        </div>
+
+        <div className="search-container my-4">
           <SearchBar onSearch={handleSearch} />
         </div>
 
@@ -83,66 +96,81 @@ const SnippetsPage = () => {
           </div>
         )}
 
-        <div className="filters-section mb-4">
-          <div className="d-flex align-items-center gap-2 mb-3">
-            <label htmlFor="sort-select" className="text-white mb-0">Sort by</label>
-            <select
-              id="sort-select"
-              className="form-select neon-select w-auto"
-              value={sort}
-              onChange={handleSortChange}
-            >
-              {SORT_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="language-chip-row">
-            <button
-              type="button"
-              className={`language-chip ${!language ? 'active' : ''}`}
-              onClick={() => handleLanguageClick('')}
-              aria-pressed={!language}
-            >
-              All Languages
-            </button>
-            {LANGUAGES.map(lang => (
-              <button
-                type="button"
-                key={lang}
-                className={`language-chip ${language === lang ? 'active' : ''}`}
-                onClick={() => handleLanguageClick(lang)}
-                aria-pressed={language === lang}
+        <div className="explore-grid">
+          <aside className="explore-sidebar">
+            <div className="filters-section mb-3">
+              <h6 className="sidebar-heading">Sort By</h6>
+              <select
+                id="sort-select"
+                className="form-select neon-select"
+                value={sort}
+                onChange={handleSortChange}
               >
-                {lang}
-              </button>
-            ))}
+                {SORT_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="filters-section">
+              <h6 className="sidebar-heading">Languages</h6>
+              <div className="sidebar-language-list">
+                <button
+                  type="button"
+                  className={`sidebar-language-item ${!language ? 'active' : ''}`}
+                  onClick={() => handleLanguageClick('')}
+                  aria-pressed={!language}
+                >
+                  <span>All Languages</span>
+                  <span className="sidebar-language-count">{total}</span>
+                </button>
+                {LANGUAGES.map(lang => (
+                  <button
+                    type="button"
+                    key={lang}
+                    className={`sidebar-language-item ${language === lang ? 'active' : ''}`}
+                    onClick={() => handleLanguageClick(lang)}
+                    aria-pressed={language === lang}
+                  >
+                    <span>
+                      <span className="language-dot" style={{ backgroundColor: toLanguageColor(lang) }} />
+                      {lang}
+                    </span>
+                    <span className="sidebar-language-count">{countFor(lang)}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </aside>
+
+          <div className="explore-results">
+            {items.length === 0 ? (
+              <div className="no-snippets">
+                <h3 className="text-center neon-text">No snippets found</h3>
+              </div>
+            ) : (
+              <>
+                <p className="explore-results-count">
+                  {total} snippet{total === 1 ? '' : 's'}{language ? ` in ${language}` : ''}
+                </p>
+                <div className="row g-4">
+                  {items.map(snippet => (
+                    <div key={snippet._id} className="col-12 col-lg-6">
+                      <SnippetCard snippet={snippet} highlightQuery={searchQuery} />
+                    </div>
+                  ))}
+                </div>
+                {page < pages && (
+                  <div className="text-center mt-4">
+                    <button className="btn btn-primary" onClick={handleLoadMore} disabled={loading}>
+                      {loading ? 'Loading...' : 'Load more'}
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
-
-        {items.length === 0 ? (
-          <div className="no-snippets">
-            <h3 className="text-center neon-text">No snippets found</h3>
-          </div>
-        ) : (
-          <>
-            <div className="row g-4">
-              {items.map(snippet => (
-                <div key={snippet._id} className="col-12 col-md-6 col-lg-4">
-                  <SnippetCard snippet={snippet} highlightQuery={searchQuery} />
-                </div>
-              ))}
-            </div>
-            {page < pages && (
-              <div className="text-center mt-4">
-                <button className="btn btn-primary" onClick={handleLoadMore} disabled={loading}>
-                  {loading ? 'Loading...' : 'Load more'}
-                </button>
-              </div>
-            )}
-          </>
-        )}
       </div>
     </div>
   );
